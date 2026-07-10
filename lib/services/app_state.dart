@@ -171,11 +171,13 @@ class AppState extends ChangeNotifier {
   // 완료되지 않은 모든 할 일을 사분면별로 묶어서 반환 (날짜 무관, 전체 기준)
   Map<int, List<Task>> get matrixTasks {
     final Map<int, List<Task>> result = {0: [], 1: [], 2: [], 3: []};
-    for (final task in storage.getAllTasks().where((t) => !t.isDone)) {
+    // 모든 날짜가 아니라, 지금 보고 있는 날짜의 할 일만 매트릭스에 담습니다.
+    for (final task in tasksForSelectedDate.where((t) => !t.isDone)) {
       result[task.quadrant]!.add(task);
     }
     return result;
   }
+
 
   // ---------------- Note(생각 노트) 관련 ----------------
 
