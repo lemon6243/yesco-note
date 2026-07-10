@@ -1,0 +1,314 @@
+// ============================================================
+// TaskEditScreen (할 일 추가/편집 화면)
+// ------------------------------------------------------------
+// existingTask가 주어지면 "수정 모드", 없으면 "새로 추가 모드"로 동작합니다.
+// 제목, 메모, 시작 시간, 날짜, 중요도, 긴급도를 입력받습니다.
+// ============================================================
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
+import '../services/app_state.dart';
+import '../models/task.dart';
+import '../theme/app_theme.dart';
+
+class TaskEditScreen extends StatefulWidget {
+  final Task? existingTask; // 수정할 할 일 (없으면 새로 추가)
+  final DateTime? initialDate; // 새로 추가할 때 기본으로 들어갈 날짜
+
+  const TaskEditScreen({super.key, this.existingTask, this.initialDate});
+
+  @override
+  State<TaskEditScreen> createState() => _TaskEditScreenState();
+}
+
+class _TaskEditScreenState extends State<TaskEditScreen> {
+  final _titleController = TextEditingController();
+  final _memoController = TextEditingController();
+
+  DateTime _date = DateTime.now();
+  TimeOfDay? _startTime; // 시작 시간 (선택 사항)
+  bool _isImportant = false;
+  bool _isUrgent = false;
+
+  bool get _isEditMode => widget.existingTask != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final task = widget.existingTask;
+    if (task != null) {
+      _titleController.text = task.title;
+      _memoController.text = task.memo ?? '';
+      _date = task.date;
+      _isImportant = task.isImportant;
+      _isUrgent = task.isUrgent;
+      if (task.startTime != null) {
+        _startTime = TimeOfDay.fromDateTime(task.startTime!);
+      }
+    } else if (widget.initialDate != null) {
+      _date = widget.initialDate!;
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _memoController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_isEditMode ? '할 일 수정' : '할 일 추가'),
+        actions: [
+          if (_isEditMode)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _handleDelete,
+            ),
+        ],
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // 제목 입력
+            TextField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: '제목 *',
+                hintText: '무슨 일을 해야 하나요?',
+              ),
+              autofocus: !_isEditMode,
+            ),
+            const SizedBox(height: 14),
+            // 메모 입력
+            TextField(
+              controller: _memoController,
+              decoration: const InputDecoration(labelText: '상세 메모 (선택)'),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 20),
+
+            // 날짜 선택
+            _buildRowSelector(
+              icon: Icons.calendar_today_rounded,
+              label: '날짜',
+              value: DateFormat('yyyy년 M월 d일 (E)', 'ko_KR').format(_date),
+              onTap: _pickDate,
+            ),
+            const SizedBox(height: 10),
+
+            // 시작 시간 선택 (선택 사항 - 없음으로 되돌릴 수 있음)
+            _buildRowSelector(
+              icon: Icons.access_time_rounded,
+              label: '시작 시간',
+              value: _startTime != null
+                  ? _startTime!.format(context)
+                  : '시간 미정 (탭하여 설정)',
+              onTap: _pickTime,
+              trailing: _startTime != null
+                  ? IconButton(
+                      icon: const Icon(Icons.close, size: 18),
+                      onPressed: () => setState(() => _startTime = null),
+                    )
+                  : null,
+            ),
+
+            const SizedBox(height: 24),
+            const Text(
+              '중요도 · 긴급도',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+
+            // 중요도 스위치
+            _buildSwitchRow(
+              label: '중요한 일인가요?',
+              value: _isImportant,
+              activeColor: AppColors.teal,
+              onChanged: (v) => setState(() => _isImportant = v),
+            ),
+            const SizedBox(height: 8),
+            // 긴급도 스위치
+            _buildSwitchRow(
+              label: '긴급한 일인가요?',
+              value: _isUrgent,
+              activeColor: AppColors.coral,
+              onChanged: (v) => setState(() => _isUrgent = v),
+            ),
+
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: _handleSave,
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  _isEditMode ? '수정 완료' : '추가하기',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRowSelector({
+    required IconData icon,
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+    Widget? trailing,
+  }) {
+    return Card(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: AppColors.coral),
+              const SizedBox(width: 12),
+              Text(label, style: const TextStyle(fontSize: 14)),
+              const Spacer(),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.withValues(alpha: 0.9),
+                ),
+              ),
+              if (trailing != null) trailing,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchRow({
+    required String label,
+    required bool value,
+    required Color activeColor,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+        child: Row(
+          children: [
+            Expanded(child: Text(label, style: const TextStyle(fontSize: 14))),
+            Switch(
+              value: value,
+              activeThumbColor: activeColor,
+              onChanged: onChanged,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) setState(() => _date = picked);
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _startTime ?? TimeOfDay.now(),
+    );
+    if (picked != null) setState(() => _startTime = picked);
+  }
+
+  Future<void> _handleSave() async {
+    final title = _titleController.text.trim();
+    if (title.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('제목을 입력해주세요.')));
+      return;
+    }
+
+    final appState = context.read<AppState>();
+
+    DateTime? startDateTime;
+    if (_startTime != null) {
+      startDateTime = DateTime(
+        _date.year,
+        _date.month,
+        _date.day,
+        _startTime!.hour,
+        _startTime!.minute,
+      );
+    }
+
+    if (_isEditMode) {
+      final task = widget.existingTask!;
+      task.title = title;
+      task.memo = _memoController.text.trim().isEmpty
+          ? null
+          : _memoController.text.trim();
+      task.date = _date;
+      task.startTime = startDateTime;
+      task.isImportant = _isImportant;
+      task.isUrgent = _isUrgent;
+      await appState.updateTask(task);
+    } else {
+      final newTask = Task(
+        id: const Uuid().v4(),
+        title: title,
+        memo: _memoController.text.trim().isEmpty
+            ? null
+            : _memoController.text.trim(),
+        date: _date,
+        startTime: startDateTime,
+        isImportant: _isImportant,
+        isUrgent: _isUrgent,
+        createdAt: DateTime.now(),
+      );
+      await appState.addTask(newTask);
+    }
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _handleDelete() async {
+    final appState = context.read<AppState>(); // async 이전에 미리 참조 확보
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('삭제할까요?'),
+        content: const Text('이 할 일을 삭제하면 되돌릴 수 없어요.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await appState.deleteTask(widget.existingTask!.id);
+      if (mounted) Navigator.pop(context);
+    }
+  }
+}
