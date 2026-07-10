@@ -204,7 +204,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 노트를 실제 할 일(Task)로 전환합니다.
+   // 노트를 실제 할 일(Task)로 전환합니다.
   Future<void> convertNoteToTask(Note note) async {
     final newTask = Task(
       id: _uuid.v4(),
@@ -212,10 +212,11 @@ class AppState extends ChangeNotifier {
           ? '${note.content.substring(0, 50)}...'
           : note.content,
       memo: note.content,
-      date: DateTime.now(),
+      date: _selectedDate, // 지금 보고 있는 날짜의 할 일로 만듭니다.
       createdAt: DateTime.now(),
     );
     await storage.saveTask(newTask);
+
 
     note.status = NoteStatus.converted;
     note.convertedTaskId = newTask.id;
