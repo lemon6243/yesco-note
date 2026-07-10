@@ -168,7 +168,7 @@ class AppState extends ChangeNotifier {
 
   // ---------------- 우선순위 매트릭스용 ----------------
 
-  // 완료되지 않은 모든 할 일을 사분면별로 묶어서 반환 (날짜 무관, 전체 기준)
+  // 선택된 날짜의 완료되지 않은 할 일을 사분면(0~3)별로 묶어서 반환
   Map<int, List<Task>> get matrixTasks {
     final Map<int, List<Task>> result = {0: [], 1: [], 2: [], 3: []};
     // 모든 날짜가 아니라, 지금 보고 있는 날짜의 할 일만 매트릭스에 담습니다.
