@@ -248,7 +248,7 @@ class AppState extends ChangeNotifier {
 
   // ---------------- 검색 ----------------
 
-   // 할 일 제목/메모, 노트 내용을 함께 검색합니다.
+    // 할 일 제목/메모, 노트 내용을 함께 검색합니다.
   List<Task> searchTasks(String keyword) {
     if (keyword.trim().isEmpty) return [];
     final lower = keyword.toLowerCase();
@@ -261,6 +261,7 @@ class AppState extends ChangeNotifier {
     results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return results;
   }
+
 
   List<Note> searchNotes(String keyword) {
     if (keyword.trim().isEmpty) return [];
