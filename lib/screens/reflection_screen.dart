@@ -20,7 +20,8 @@ class ReflectionScreen extends StatefulWidget {
 
 class _ReflectionScreenState extends State<ReflectionScreen> {
   final _memoController = TextEditingController();
-  bool _loaded = false;
+  DateTime? _lastLoadedDate; // 마지막으로 메모를 불러온 날짜
+
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +29,14 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
     final selectedDate = appState.selectedDate;
     final top3 = appState.top3Tasks;
 
-    // 회고 메모를 처음 한 번만 입력창에 불러옵니다.
-    if (!_loaded) {
+        // 날짜가 바뀔 때마다 그 날짜의 회고 메모를 입력창에 다시 불러옵니다.
+    if (_lastLoadedDate == null ||
+        !_isSameDay(_lastLoadedDate!, selectedDate)) {
       final reflection = appState.reflectionFor(selectedDate);
       _memoController.text = reflection?.memo ?? '';
-      _loaded = true;
+      _lastLoadedDate = selectedDate;
     }
+
 
     final doneCount = top3.where((t) => t.isDone).length;
 
@@ -163,7 +166,11 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
       ),
     );
   }
-
+  // 두 날짜가 같은 '날'인지 비교 (시/분은 무시)
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+  
   @override
   void dispose() {
     _memoController.dispose();
