@@ -248,15 +248,18 @@ class AppState extends ChangeNotifier {
 
   // ---------------- 검색 ----------------
 
-  // 할 일 제목/메모, 노트 내용을 함께 검색합니다.
+   // 할 일 제목/메모, 노트 내용을 함께 검색합니다.
   List<Task> searchTasks(String keyword) {
     if (keyword.trim().isEmpty) return [];
     final lower = keyword.toLowerCase();
-    return storage.getAllTasks().where((t) {
+    final results = storage.getAllTasks().where((t) {
       final inTitle = t.title.toLowerCase().contains(lower);
       final inMemo = (t.memo ?? '').toLowerCase().contains(lower);
       return inTitle || inMemo;
     }).toList();
+    // 최근에 만든 할 일이 위로 오도록 생성일 기준 내림차순 정렬
+    results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return results;
   }
 
   List<Note> searchNotes(String keyword) {
