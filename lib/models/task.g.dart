@@ -32,10 +32,10 @@ class TaskAdapter extends TypeAdapter<Task> {
     );
   }
 
-  @override
+    @override
   void write(BinaryWriter writer, Task obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -57,10 +57,11 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(9)
       ..write(obj.createdAt)
       ..writeByte(10)
-      ..write(obj.carriedOverFromId);
-      ..writeByte(11)          // ← 이 두 줄 추가
-      ..write(obj.location);   // ← (세미콜론 위치 주의: 여기가 마지막)
+      ..write(obj.carriedOverFromId)
+      ..writeByte(11)
+      ..write(obj.location);
   }
+
 
   @override
   int get hashCode => typeId.hashCode;
