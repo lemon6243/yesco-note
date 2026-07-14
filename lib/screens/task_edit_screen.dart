@@ -31,6 +31,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   TimeOfDay? _startTime; // 시작 시간 (선택 사항)
   bool _isImportant = false;
   bool _isUrgent = false;
+  String? _location; // 장소: 'home'(집) / 'outside'(외부) / null(미지정)
+
 
   bool get _isEditMode => widget.existingTask != null;
 
@@ -44,6 +46,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       _date = task.date;
       _isImportant = task.isImportant;
       _isUrgent = task.isUrgent;
+      _location = task.location;
       if (task.startTime != null) {
         _startTime = TimeOfDay.fromDateTime(task.startTime!);
       }
@@ -140,6 +143,30 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
               value: _isUrgent,
               activeColor: AppColors.coral,
               onChanged: (v) => setState(() => _isUrgent = v),
+            ),
+
+            const SizedBox(height: 24),
+            const Text(
+              '장소',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              children: [
+                ChoiceChip(
+                  label: const Text('🏠 집'),
+                  selected: _location == 'home',
+                  onSelected: (sel) =>
+                      setState(() => _location = sel ? 'home' : null),
+                ),
+                ChoiceChip(
+                  label: const Text('🚶 외부'),
+                  selected: _location == 'outside',
+                  onSelected: (sel) =>
+                      setState(() => _location = sel ? 'outside' : null),
+                ),
+              ],
             ),
 
             const SizedBox(height: 32),
@@ -267,6 +294,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       task.startTime = startDateTime;
       task.isImportant = _isImportant;
       task.isUrgent = _isUrgent;
+      task.location = _location;
       await appState.updateTask(task);
     } else {
       final newTask = Task(
@@ -279,6 +307,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         startTime: startDateTime,
         isImportant: _isImportant,
         isUrgent: _isUrgent,
+        location: _location,
         createdAt: DateTime.now(),
       );
       await appState.addTask(newTask);
