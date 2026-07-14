@@ -28,6 +28,7 @@ class TaskAdapter extends TypeAdapter<Task> {
       isDone: fields[8] as bool,
       createdAt: fields[9] as DateTime,
       carriedOverFromId: fields[10] as String?,
+      location: fields[11] as String?, 
     );
   }
 
@@ -57,6 +58,8 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..write(obj.createdAt)
       ..writeByte(10)
       ..write(obj.carriedOverFromId);
+      ..writeByte(11)          // ← 이 두 줄 추가
+      ..write(obj.location);   // ← (세미콜론 위치 주의: 여기가 마지막)
   }
 
   @override
