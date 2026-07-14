@@ -63,6 +63,11 @@ class Task extends HiveObject {
   @HiveField(10)
   String? carriedOverFromId;
 
+  // 이 할 일을 하는 장소(맥락). 'home' = 집, 'outside' = 외부,
+  // null 이면 아직 지정 안 함. 집/밖에서 할 일을 구분해서 보기 위한 필드입니다.
+  @HiveField(11)
+  String? location;
+  
   Task({
     required this.id,
     required this.title,
@@ -75,6 +80,7 @@ class Task extends HiveObject {
     this.isDone = false,
     required this.createdAt,
     this.carriedOverFromId,
+    this.location,
   });
 
   // 중요도+긴급도 조합으로 어떤 사분면(매트릭스 칸)에 속하는지 계산합니다.
