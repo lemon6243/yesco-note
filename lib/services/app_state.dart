@@ -15,6 +15,7 @@ import 'package:uuid/uuid.dart';
 import '../models/task.dart';
 import '../models/note.dart';
 import '../models/reflection.dart';
+import '../models/habit.dart';
 import 'storage_service.dart';
 
 class AppState extends ChangeNotifier {
@@ -262,6 +263,51 @@ class AppState extends ChangeNotifier {
     }
     notifyListeners();
   }
+    // ---------------- Habit(습관) 관련 ----------------
+
+  // 활성 습관 목록 (보관된 것은 제외). 만든 순서대로 반환.
+  List<Habit> get activeHabits {
+    final list = storage.getAllHabits().where((h) => !h.isArchived).toList();
+    list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return list;
+  }
+
+  // 새 습관 추가
+  Future<void> addHabit(String name, String emoji) async {
+    final habit = Habit(
+      id: _uuid.v4(),
+      name: name,
+      emoji: emoji,
+      createdAt: DateTime.now(),
+    );
+    await storage.saveHabit(habit);
+    notifyListeners();
+  }
+
+  // 습관 정보 수정 (이름·이모지 변경 등)
+  Future<void> updateHabit(Habit habit) async {
+    await storage.saveHabit(habit);
+    notifyListeners();
+  }
+
+  // 습관 삭제
+  Future<void> deleteHabit(String id) async {
+    await storage.deleteHabit(id);
+    notifyListeners();
+  }
+
+  // 오늘 체크를 켜고 끕니다. (이미 체크돼 있으면 해제, 아니면 체크)
+  Future<void> toggleHabitToday(Habit habit) async {
+    final todayKey = Habit.dateKey(DateTime.now());
+    if (habit.checkedDates.contains(todayKey)) {
+      habit.checkedDates.remove(todayKey); // 체크 해제
+    } else {
+      habit.checkedDates.add(todayKey); // 체크
+    }
+    await storage.saveHabit(habit);
+    notifyListeners();
+  }
+
 
   // ---------------- 검색 ----------------
 
