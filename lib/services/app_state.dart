@@ -296,7 +296,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 오늘 체크를 켜고 끕니다. (이미 체크돼 있으면 해제, 아니면 체크)
+   // 오늘 체크를 켜고 끕니다. (이미 체크돼 있으면 해제, 아니면 체크)
   Future<void> toggleHabitToday(Habit habit) async {
    // 미래 날짜는 체크할 수 없게 막습니다. (오늘까지만 허용)
     final today = DateTime.now();
@@ -313,6 +313,7 @@ class AppState extends ChangeNotifier {
     await storage.saveHabit(habit);
     notifyListeners();
   }
+
 
 
   // ---------------- 검색 ----------------
