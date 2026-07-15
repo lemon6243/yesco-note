@@ -65,6 +65,14 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // 캘린더에서 특정 날짜를 골랐을 때, 그 날짜로 바로 이동합니다.
+  // (시:분:초는 버리고 날짜만 사용)
+  void goToDate(DateTime date) {
+    _selectedDate = DateTime(date.year, date.month, date.day);
+    notifyListeners();
+  }
+
+
   // ---------------- 초기 데이터 로드 + 미완료 이월 ----------------
 
   // 앱을 시작할 때 호출합니다.
