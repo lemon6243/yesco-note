@@ -32,6 +32,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   bool _isImportant = false;
   bool _isUrgent = false;
   String? _location; // 장소: 'home'(집) / 'outside'(외부) / null(미지정)
+  // 5W2H 구체화 입력용 컨트롤러
+  final _whyController = TextEditingController();
+  final _howController = TextEditingController();
+  final _howMuchController = TextEditingController();
 
 
   bool get _isEditMode => widget.existingTask != null;
@@ -47,6 +51,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       _isImportant = task.isImportant;
       _isUrgent = task.isUrgent;
       _location = task.location;
+      _whyController.text = task.why ?? '';
+      _howController.text = task.how ?? '';
+      _howMuchController.text = task.howMuch ?? '';
+
       if (task.startTime != null) {
         _startTime = TimeOfDay.fromDateTime(task.startTime!);
       }
@@ -59,6 +67,9 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   void dispose() {
     _titleController.dispose();
     _memoController.dispose();
+    _whyController.dispose();
+    _howController.dispose();
+    _howMuchController.dispose();
     super.dispose();
   }
 
@@ -168,6 +179,52 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ),
               ],
             ),
+            // ▼▼▼ 여기에 추가 ▼▼▼
+            const SizedBox(height: 20),
+            Card(
+              margin: EdgeInsets.zero,
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+                childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                leading: const Icon(Icons.center_focus_strong_rounded),
+                title: const Text(
+                  '구체화 (5W2H)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                subtitle: const Text(
+                  '막연한 일을 구체적인 예정으로',
+                  style: TextStyle(fontSize: 11),
+                ),
+                children: [
+                  TextField(
+                    controller: _whyController,
+                    decoration: const InputDecoration(
+                      labelText: '왜 (목적·동기)',
+                      hintText: '이 일을 왜 하나요?',
+                    ),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _howController,
+                    decoration: const InputDecoration(
+                      labelText: '어떻게 (방법·수단)',
+                      hintText: '어떤 방법으로 할까요?',
+                    ),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _howMuchController,
+                    decoration: const InputDecoration(
+                      labelText: '얼마나 (분량·기준)',
+                      hintText: '예: 30분, 10페이지, 3세트',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // ▲▲▲ 여기까지 추가 ▲▲▲
 
             const SizedBox(height: 32),
             ElevatedButton(
@@ -295,6 +352,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       task.isImportant = _isImportant;
       task.isUrgent = _isUrgent;
       task.location = _location;
+      task.why = _textOrNull(_whyController.text);
+      task.how = _textOrNull(_howController.text);
+      task.howMuch = _textOrNull(_howMuchController.text);
+
       await appState.updateTask(task);
     } else {
       final newTask = Task(
@@ -308,6 +369,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         isImportant: _isImportant,
         isUrgent: _isUrgent,
         location: _location,
+        why: _textOrNull(_whyController.text),
+        how: _textOrNull(_howController.text),
+        howMuch: _textOrNull(_howMuchController.text),
+
         createdAt: DateTime.now(),
       );
       await appState.addTask(newTask);
@@ -338,6 +403,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     if (confirm == true) {
       await appState.deleteTask(widget.existingTask!.id);
       if (mounted) Navigator.pop(context);
-    }
+      // 입력값이 비어 있으면 null, 아니면 앞뒤 공백을 없앤 문자열을 돌려줍니다.
+  String? _textOrNull(String text) {
+    final trimmed = text.trim();
+    return trimmed.isEmpty ? null : trimmed;
+   }
   }
 }
