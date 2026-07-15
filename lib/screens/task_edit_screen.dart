@@ -400,13 +400,15 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         ],
       ),
     );
-    if (confirm == true) {
+      if (confirm == true) {
       await appState.deleteTask(widget.existingTask!.id);
       if (mounted) Navigator.pop(context);
-      // 입력값이 비어 있으면 null, 아니면 앞뒤 공백을 없앤 문자열을 돌려줍니다.
+    }
+  }
+
+  // 입력값이 비어 있으면 null, 아니면 앞뒤 공백을 없앤 문자열을 돌려줍니다.
   String? _textOrNull(String text) {
     final trimmed = text.trim();
     return trimmed.isEmpty ? null : trimmed;
-   }
   }
 }
