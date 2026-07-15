@@ -298,7 +298,19 @@ class AppState extends ChangeNotifier {
 
    // 오늘 체크를 켜고 끕니다. (이미 체크돼 있으면 해제, 아니면 체크)
   Future<void> toggleHabitToday(Habit habit) async {
-   // 미래 날짜는 체크할 수 없게 막습니다. (오늘까지만 허용)
+    final key = Habit.dateKey(DateTime.now());
+    if (habit.checkedDates.contains(key)) {
+      habit.checkedDates.remove(key); // 체크 해제
+    } else {
+      habit.checkedDates.add(key); // 체크
+    }
+    await storage.saveHabit(habit);
+    notifyListeners();
+  }
+
+  // 특정 날짜의 체크를 켜고 끕니다. (달력에서 과거 날짜를 수정할 때 사용)
+  Future<void> toggleHabitOnDate(Habit habit, DateTime date) async {
+    // 미래 날짜는 체크할 수 없게 막습니다. (오늘까지만 허용)
     final today = DateTime.now();
     final dateOnly = DateTime(date.year, date.month, date.day);
     final todayOnly = DateTime(today.year, today.month, today.day);
@@ -313,6 +325,7 @@ class AppState extends ChangeNotifier {
     await storage.saveHabit(habit);
     notifyListeners();
   }
+
 
 
 
