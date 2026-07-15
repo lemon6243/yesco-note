@@ -11,6 +11,7 @@ import '../models/task.dart';
 import '../models/note.dart';
 import '../models/reflection.dart';
 import '../models/habit.dart';
+import '../models/morning_session.dart';
 
 class StorageService {
   // Hive의 "박스(Box)"는 하나의 테이블(엑셀 시트)이라고 생각하면 됩니다.
@@ -18,11 +19,13 @@ class StorageService {
   static const String noteBoxName = 'notes';
   static const String reflectionBoxName = 'reflections';
   static const String habitBoxName = 'habits';
+  static const String morningSessionBoxName = 'morning_sessions';
 
   late Box<Task> taskBox;
   late Box<Note> noteBox;
   late Box<Reflection> reflectionBox;
   late Box<Habit> habitBox;
+  late Box<MorningSession> morningSessionBox;
 
   // 앱이 시작될 때 한 번 호출해서 Hive를 준비시킵니다.
   Future<void> init() async {
@@ -44,11 +47,17 @@ class StorageService {
     if (!Hive.isAdapterRegistered(4)) {
       Hive.registerAdapter(HabitAdapter());
     }
+    if (!Hive.isAdapterRegistered(5)) {
+      Hive.registerAdapter(MorningSessionAdapter());
+    }
 
     taskBox = await Hive.openBox<Task>(taskBoxName);
     noteBox = await Hive.openBox<Note>(noteBoxName);
     reflectionBox = await Hive.openBox<Reflection>(reflectionBoxName);
     habitBox = await Hive.openBox<Habit>(habitBoxName);
+    morningSessionBox = await Hive.openBox<MorningSession>(
+      morningSessionBoxName,
+    );
   }
 
   // ---------------- Task 관련 함수들 ----------------
@@ -124,5 +133,31 @@ class StorageService {
   // 습관 삭제
   Future<void> deleteHabit(String id) async {
     await habitBox.delete(id);
+  }
+
+  // ---------------- MorningSession(아침 1시간) 관련 함수들 ----------------
+
+  // 모든 기록을 최신순(완료 시각 내림차순)으로 가져옵니다.
+  List<MorningSession> getAllMorningSessions() {
+    final list = morningSessionBox.values.toList();
+    list.sort((a, b) => b.completedAt.compareTo(a.completedAt));
+    return list;
+  }
+
+  // 특정 날짜(연/월/일이 같은)의 기록만 가져옵니다.
+  List<MorningSession> getMorningSessionsByDate(DateTime date) {
+    return morningSessionBox.values.where((s) {
+      return s.date.year == date.year &&
+          s.date.month == date.month &&
+          s.date.day == date.day;
+    }).toList();
+  }
+
+  Future<void> saveMorningSession(MorningSession session) async {
+    await morningSessionBox.put(session.id, session);
+  }
+
+  Future<void> deleteMorningSession(String id) async {
+    await morningSessionBox.delete(id);
   }
 }

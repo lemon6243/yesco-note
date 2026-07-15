@@ -50,6 +50,11 @@ class Habit extends HiveObject {
   @HiveField(6)
   bool isArchived;
 
+  // 주간 목표 횟수 (선택). 예: 3이면 "주 3회"가 목표.
+  // null이면 목표를 설정하지 않은 습관 (통계 표시만, 진행률 바는 안 보임).
+  @HiveField(7)
+  int? weeklyGoal;
+
   Habit({
     required this.id,
     required this.name,
@@ -58,6 +63,7 @@ class Habit extends HiveObject {
     List<String>? checkedDates,
     required this.createdAt,
     this.isArchived = false,
+    this.weeklyGoal,
   }) : checkedDates = checkedDates ?? [];
 
   // ----------------------------------------------------------
@@ -101,4 +107,68 @@ class Habit extends HiveObject {
     }
     return streak;
   }
+
+  // ----------------------------------------------------------
+  // 통계용 헬퍼 (2단계: 습관 심화)
+  // ----------------------------------------------------------
+
+  // 지금까지 통틀어 총 몇 번 체크했는지 (전체 실천 횟수)
+  int get totalCheckCount => checkedDates.length;
+
+  // 지금까지 가장 길었던 연속일수(최장 기록).
+  // checkedDates 문자열들을 날짜로 바꿔 정렬한 뒤, 하루씩 이어지는 구간을 찾습니다.
+  int get longestStreak {
+    if (checkedDates.isEmpty) return 0;
+
+    // "yyyy-MM-dd" 문자열들을 DateTime으로 변환하고 오름차순 정렬
+    final dates =
+        checkedDates
+            .map((s) {
+              final parts = s.split('-');
+              if (parts.length != 3) return null;
+              final y = int.tryParse(parts[0]);
+              final m = int.tryParse(parts[1]);
+              final d = int.tryParse(parts[2]);
+              if (y == null || m == null || d == null) return null;
+              return DateTime(y, m, d);
+            })
+            .whereType<DateTime>()
+            .toList()
+          ..sort();
+
+    int longest = 1;
+    int current = 1;
+    for (int i = 1; i < dates.length; i++) {
+      final diff = dates[i].difference(dates[i - 1]).inDays;
+      if (diff == 1) {
+        // 바로 다음 날이면 연속 구간이 이어짐
+        current++;
+        if (current > longest) longest = current;
+      } else if (diff > 1) {
+        // 하루 이상 비었으면 연속 구간이 끊김 → 다시 1부터 셈
+        current = 1;
+      }
+      // diff == 0 (중복 날짜)인 경우는 그냥 무시
+    }
+    return longest;
+  }
+
+  // "이번 주(월요일~일요일)" 동안 체크한 횟수.
+  // 주간 목표(weeklyGoal) 달성률을 계산할 때 사용합니다.
+  int checksInWeekOf(DateTime anyDayInWeek) {
+    // 그 주의 월요일 날짜를 구합니다. (Dart weekday: 월=1 ~ 일=7)
+    final weekday = anyDayInWeek.weekday;
+    final monday = anyDayInWeek.subtract(Duration(days: weekday - 1));
+    final mondayOnly = DateTime(monday.year, monday.month, monday.day);
+
+    int count = 0;
+    for (int i = 0; i < 7; i++) {
+      final day = mondayOnly.add(Duration(days: i));
+      if (isCheckedOn(day)) count++;
+    }
+    return count;
+  }
+
+  // 이번 주 체크 횟수 (오늘 기준)
+  int get checksThisWeek => checksInWeekOf(DateTime.now());
 }

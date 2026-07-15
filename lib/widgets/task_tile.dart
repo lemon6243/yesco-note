@@ -95,7 +95,7 @@ class TaskTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-               // ▼▼▼ 여기부터 추가 (장소 아이콘: 집 🏠 / 외부 🚶) ▼▼▼
+              // ▼▼▼ 여기부터 추가 (장소 아이콘: 집 🏠 / 외부 🚶) ▼▼▼
               if (task.location != null)
                 Padding(
                   padding: const EdgeInsets.only(left: 6, right: 2),

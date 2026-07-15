@@ -37,7 +37,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   final _howController = TextEditingController();
   final _howMuchController = TextEditingController();
 
-
   bool get _isEditMode => widget.existingTask != null;
 
   @override
@@ -224,8 +223,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ],
               ),
             ),
-            // ▲▲▲ 여기까지 추가 ▲▲▲
 
+            // ▲▲▲ 여기까지 추가 ▲▲▲
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: _handleSave,
@@ -400,7 +399,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         ],
       ),
     );
-      if (confirm == true) {
+    if (confirm == true) {
       await appState.deleteTask(widget.existingTask!.id);
       if (mounted) Navigator.pop(context);
     }

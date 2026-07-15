@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_state.dart';
 import 'today_screen.dart';
+import 'morning_screen.dart';
 import 'matrix_screen.dart';
 import 'notes_screen.dart';
 import 'reflection_screen.dart';
@@ -29,6 +30,7 @@ class _MainNavigationState extends State<MainNavigation> {
   // 탭마다 보여줄 화면들
   final List<Widget> _screens = const [
     TodayScreen(),
+    MorningScreen(),
     MatrixScreen(),
     HabitsScreen(),
     NotesScreen(),
@@ -78,6 +80,11 @@ class _MainNavigationState extends State<MainNavigation> {
             icon: Icon(Icons.today_outlined),
             selectedIcon: Icon(Icons.today_rounded),
             label: '오늘',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.wb_twilight_outlined),
+            selectedIcon: Icon(Icons.wb_twilight_rounded),
+            label: '아침',
           ),
           NavigationDestination(
             icon: Icon(Icons.grid_view_outlined),

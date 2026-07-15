@@ -106,7 +106,6 @@ class TodayScreen extends StatelessWidget {
             _buildLocationFilterBar(context, appState),
             // ---------- 시간순 일정 리스트 ----------
             Expanded(child: _buildTaskList(context, appState)),
-
           ],
         ),
       ),
@@ -190,7 +189,8 @@ class TodayScreen extends StatelessWidget {
       ),
     );
   }
-    // 장소 필터 바 (전체 / 🏠 집 / 🚶 외부)
+
+  // 장소 필터 바 (전체 / 🏠 집 / 🚶 외부)
   Widget _buildLocationFilterBar(BuildContext context, AppState appState) {
     final current = appState.locationFilter; // null / 'home' / 'outside'
 
@@ -217,7 +217,6 @@ class TodayScreen extends StatelessWidget {
       ),
     );
   }
-
 
   // 시간순/시간미정 리스트 전체
   Widget _buildTaskList(BuildContext context, AppState appState) {

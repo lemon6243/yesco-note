@@ -101,7 +101,6 @@ class Task extends HiveObject {
     this.howMuch,
   });
 
-  
   // 중요도+긴급도 조합으로 어떤 사분면(매트릭스 칸)에 속하는지 계산합니다.
   // 0: 긴급&중요 / 1: 중요만 / 2: 긴급만 / 3: 둘 다 낮음
   int get quadrant {

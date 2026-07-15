@@ -1,53 +1,47 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'habit.dart';
+part of 'morning_session.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HabitAdapter extends TypeAdapter<Habit> {
+class MorningSessionAdapter extends TypeAdapter<MorningSession> {
   @override
-  final int typeId = 4;
+  final int typeId = 5;
 
   @override
-  Habit read(BinaryReader reader) {
+  MorningSession read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Habit(
+    return MorningSession(
       id: fields[0] as String,
-      name: fields[1] as String,
-      emoji: fields[2] as String,
-      colorValue: fields[3] as int?,
-      checkedDates: (fields[4] as List?)?.cast<String>(),
-      createdAt: fields[5] as DateTime,
-      isArchived: fields[6] as bool,
-      weeklyGoal: fields[7] as int?,
+      date: fields[1] as DateTime,
+      durationSeconds: fields[2] as int,
+      targetSeconds: fields[3] as int,
+      memo: fields[4] as String?,
+      completedAt: fields[5] as DateTime,
     );
   }
 
   @override
-  void write(BinaryWriter writer, Habit obj) {
+  void write(BinaryWriter writer, MorningSession obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.date)
       ..writeByte(2)
-      ..write(obj.emoji)
+      ..write(obj.durationSeconds)
       ..writeByte(3)
-      ..write(obj.colorValue)
+      ..write(obj.targetSeconds)
       ..writeByte(4)
-      ..write(obj.checkedDates)
+      ..write(obj.memo)
       ..writeByte(5)
-      ..write(obj.createdAt)
-      ..writeByte(6)
-      ..write(obj.isArchived)
-      ..writeByte(7)
-      ..write(obj.weeklyGoal);
+      ..write(obj.completedAt);
   }
 
   @override
@@ -56,7 +50,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HabitAdapter &&
+      other is MorningSessionAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

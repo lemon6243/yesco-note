@@ -16,6 +16,7 @@ import '../models/task.dart';
 import '../models/note.dart';
 import '../models/reflection.dart';
 import '../models/habit.dart';
+import '../models/morning_session.dart';
 import 'storage_service.dart';
 
 class AppState extends ChangeNotifier {
@@ -123,7 +124,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   // 선택된 날짜의 할 일 목록 (실시간으로 storage에서 다시 읽어옴)
   // 장소 필터가 켜져 있으면 해당 장소의 할 일만 걸러서 반환합니다.
   List<Task> get tasksForSelectedDate {
@@ -131,8 +131,6 @@ class AppState extends ChangeNotifier {
     if (_locationFilter == null) return all;
     return all.where((t) => t.location == _locationFilter).toList();
   }
-
-
 
   // 시간이 지정된 할 일만, 시간순으로 정렬해서 반환
   List<Task> get timedTasks {
@@ -196,7 +194,6 @@ class AppState extends ChangeNotifier {
     return result;
   }
 
-
   // ---------------- Note(생각 노트) 관련 ----------------
 
   List<Note> get allNotes => storage.getAllNotes();
@@ -222,7 +219,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-   // 노트를 실제 할 일(Task)로 전환합니다.
+  // 노트를 실제 할 일(Task)로 전환합니다.
   Future<void> convertNoteToTask(Note note) async {
     final newTask = Task(
       id: _uuid.v4(),
@@ -234,7 +231,6 @@ class AppState extends ChangeNotifier {
       createdAt: DateTime.now(),
     );
     await storage.saveTask(newTask);
-
 
     note.status = NoteStatus.converted;
     note.convertedTaskId = newTask.id;
@@ -263,7 +259,7 @@ class AppState extends ChangeNotifier {
     }
     notifyListeners();
   }
-    // ---------------- Habit(습관) 관련 ----------------
+  // ---------------- Habit(습관) 관련 ----------------
 
   // 활성 습관 목록 (보관된 것은 제외). 만든 순서대로 반환.
   List<Habit> get activeHabits {
@@ -272,13 +268,14 @@ class AppState extends ChangeNotifier {
     return list;
   }
 
-  // 새 습관 추가
-  Future<void> addHabit(String name, String emoji) async {
+  // 새 습관 추가 (weeklyGoal은 선택 입력. null이면 목표 없이 등록)
+  Future<void> addHabit(String name, String emoji, {int? weeklyGoal}) async {
     final habit = Habit(
       id: _uuid.v4(),
       name: name,
       emoji: emoji,
       createdAt: DateTime.now(),
+      weeklyGoal: weeklyGoal,
     );
     await storage.saveHabit(habit);
     notifyListeners();
@@ -296,7 +293,7 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-   // 오늘 체크를 켜고 끕니다. (이미 체크돼 있으면 해제, 아니면 체크)
+  // 오늘 체크를 켜고 끕니다. (이미 체크돼 있으면 해제, 아니면 체크)
   Future<void> toggleHabitToday(Habit habit) async {
     final key = Habit.dateKey(DateTime.now());
     if (habit.checkedDates.contains(key)) {
@@ -326,12 +323,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
-
   // ---------------- 검색 ----------------
 
-    // 할 일 제목/메모, 노트 내용을 함께 검색합니다.
+  // 할 일 제목/메모, 노트 내용을 함께 검색합니다.
   List<Task> searchTasks(String keyword) {
     if (keyword.trim().isEmpty) return [];
     final lower = keyword.toLowerCase();
@@ -345,7 +339,6 @@ class AppState extends ChangeNotifier {
     return results;
   }
 
-
   List<Note> searchNotes(String keyword) {
     if (keyword.trim().isEmpty) return [];
     final lower = keyword.toLowerCase();
@@ -353,5 +346,81 @@ class AppState extends ChangeNotifier {
         .getAllNotes()
         .where((n) => n.content.toLowerCase().contains(lower))
         .toList();
+  }
+
+  // ---------------- MorningSession(아침 1시간 타이머) 관련 ----------------
+
+  // 오늘 기록한 모든 세션들 (하루에 여러 번 기록 가능)
+  List<MorningSession> get todayMorningSessions =>
+      storage.getMorningSessionsByDate(DateTime.now());
+
+  // 오늘 지금까지 누적한 시간(초). 여러 번 기록했으면 합산.
+  int get todayMorningSeconds => todayMorningSessions.fold(
+    0,
+    (sum, s) => sum + s.durationSeconds,
+  );
+
+  // 전체 기록 (최신순)
+  List<MorningSession> get allMorningSessions =>
+      storage.getAllMorningSessions();
+
+  // 지금까지 누적한 총 시간(초). 통계 화면용.
+  int get totalMorningSeconds => storage.getAllMorningSessions().fold(
+    0,
+    (sum, s) => sum + s.durationSeconds,
+  );
+
+  // 지금까지 기록한 총 횟수(세션 수). 통계 화면용.
+  int get totalMorningSessionCount => storage.getAllMorningSessions().length;
+
+  // "아침 시간을 실천한 날"의 연속일수(streak)를 계산합니다.
+  // 하루에 최소 1번 이상 기록이 있으면 그날은 "실천한 날"로 간주합니다.
+  // 오늘 아직 안 했으면 어제부터 거꾸로 셉니다. (습관 streak와 동일한 규칙)
+  int get morningStreak {
+    final sessions = storage.getAllMorningSessions();
+    if (sessions.isEmpty) return 0;
+
+    final doneDateKeys = sessions
+        .map((s) => MorningSession.dateKey(s.date))
+        .toSet();
+
+    bool isDoneOn(DateTime date) =>
+        doneDateKeys.contains(MorningSession.dateKey(date));
+
+    DateTime cursor = DateTime.now();
+    if (!isDoneOn(cursor)) {
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+
+    int streak = 0;
+    while (isDoneOn(cursor)) {
+      streak++;
+      cursor = cursor.subtract(const Duration(days: 1));
+    }
+    return streak;
+  }
+
+  // 새 아침 세션 기록을 저장합니다. (타이머를 멈추고 "저장"했을 때 호출)
+  Future<void> addMorningSession({
+    required int durationSeconds,
+    required int targetSeconds,
+    String? memo,
+  }) async {
+    final now = DateTime.now();
+    final session = MorningSession(
+      id: _uuid.v4(),
+      date: DateTime(now.year, now.month, now.day),
+      durationSeconds: durationSeconds,
+      targetSeconds: targetSeconds,
+      memo: (memo == null || memo.trim().isEmpty) ? null : memo.trim(),
+      completedAt: now,
+    );
+    await storage.saveMorningSession(session);
+    notifyListeners();
+  }
+
+  Future<void> deleteMorningSession(String id) async {
+    await storage.deleteMorningSession(id);
+    notifyListeners();
   }
 }
