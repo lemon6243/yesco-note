@@ -67,7 +67,22 @@ class Task extends HiveObject {
   // null 이면 아직 지정 안 함. 집/밖에서 할 일을 구분해서 보기 위한 필드입니다.
   @HiveField(11)
   String? location;
-  
+  // ---------------- 5W2H 구체화 (선택 입력) ----------------
+  // 막연한 할 일을 구체적인 예정으로 바꾸기 위한 항목들.
+  // 모두 선택 입력이며, 안 쓰면 null 입니다.
+
+  // 왜 하는가 (목적·동기)
+  @HiveField(12)
+  String? why;
+
+  // 어떻게 할 것인가 (방법·수단)
+  @HiveField(13)
+  String? how;
+
+  // 얼마나 (분량·횟수·기준. 예: 30분, 10페이지, 3세트)
+  @HiveField(14)
+  String? howMuch;
+
   Task({
     required this.id,
     required this.title,
@@ -81,8 +96,12 @@ class Task extends HiveObject {
     required this.createdAt,
     this.carriedOverFromId,
     this.location,
+    this.why,
+    this.how,
+    this.howMuch,
   });
 
+  
   // 중요도+긴급도 조합으로 어떤 사분면(매트릭스 칸)에 속하는지 계산합니다.
   // 0: 긴급&중요 / 1: 중요만 / 2: 긴급만 / 3: 둘 다 낮음
   int get quadrant {
