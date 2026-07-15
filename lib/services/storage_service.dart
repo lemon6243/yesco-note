@@ -10,16 +10,19 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/task.dart';
 import '../models/note.dart';
 import '../models/reflection.dart';
+import '../models/habit.dart';
 
 class StorageService {
   // Hive의 "박스(Box)"는 하나의 테이블(엑셀 시트)이라고 생각하면 됩니다.
   static const String taskBoxName = 'tasks';
   static const String noteBoxName = 'notes';
   static const String reflectionBoxName = 'reflections';
+  static const String habitBoxName = 'habits';
 
   late Box<Task> taskBox;
   late Box<Note> noteBox;
   late Box<Reflection> reflectionBox;
+  late Box<Habit> habitBox;
 
   // 앱이 시작될 때 한 번 호출해서 Hive를 준비시킵니다.
   Future<void> init() async {
@@ -38,10 +41,14 @@ class StorageService {
     if (!Hive.isAdapterRegistered(3)) {
       Hive.registerAdapter(ReflectionAdapter());
     }
+    if (!Hive.isAdapterRegistered(4)) {
+      Hive.registerAdapter(HabitAdapter());
+    }
 
     taskBox = await Hive.openBox<Task>(taskBoxName);
     noteBox = await Hive.openBox<Note>(noteBoxName);
     reflectionBox = await Hive.openBox<Reflection>(reflectionBoxName);
+    habitBox = await Hive.openBox<Habit>(habitBoxName);
   }
 
   // ---------------- Task 관련 함수들 ----------------
@@ -103,5 +110,20 @@ class StorageService {
 
   Future<void> saveReflection(Reflection reflection) async {
     await reflectionBox.put(reflection.id, reflection);
+  // ---------------- Habit(습관) 관련 함수들 ----------------
+
+  // 모든 습관을 가져옵니다. (보관된 것 포함)
+  List<Habit> getAllHabits() => habitBox.values.toList();
+
+  // 습관 저장 (새로 추가하거나 기존 것을 수정할 때 모두 사용)
+  Future<void> saveHabit(Habit habit) async {
+    await habitBox.put(habit.id, habit);
+  }
+
+  // 습관 삭제
+  Future<void> deleteHabit(String id) async {
+    await habitBox.delete(id);
+  }
+
   }
 }
