@@ -13,6 +13,7 @@ import 'today_screen.dart';
 import 'matrix_screen.dart';
 import 'notes_screen.dart';
 import 'reflection_screen.dart';
+import 'habits_screen.dart';
 import 'search_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -29,6 +30,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _screens = const [
     TodayScreen(),
     MatrixScreen(),
+    HabitsScreen(),
     NotesScreen(),
     ReflectionScreen(),
   ];
@@ -81,6 +83,11 @@ class _MainNavigationState extends State<MainNavigation> {
             icon: Icon(Icons.grid_view_outlined),
             selectedIcon: Icon(Icons.grid_view_rounded),
             label: '매트릭스',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.local_fire_department_outlined),
+            selectedIcon: Icon(Icons.local_fire_department_rounded),
+            label: '습관',
           ),
           NavigationDestination(
             icon: Icon(Icons.edit_note_outlined),
