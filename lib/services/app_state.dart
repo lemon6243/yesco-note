@@ -112,9 +112,26 @@ class AppState extends ChangeNotifier {
   }
 
   // ---------------- Task(할 일) 관련 ----------------
+  // ---------------- 장소 필터 (전체 / 집 / 외부) ----------------
+  // null = 전체 보기, 'home' = 집만, 'outside' = 외부만
+  String? _locationFilter;
+  String? get locationFilter => _locationFilter;
+
+  void setLocationFilter(String? location) {
+    _locationFilter = location;
+    notifyListeners();
+  }
+
 
   // 선택된 날짜의 할 일 목록 (실시간으로 storage에서 다시 읽어옴)
-  List<Task> get tasksForSelectedDate => storage.getTasksByDate(_selectedDate);
+  // 장소 필터가 켜져 있으면 해당 장소의 할 일만 걸러서 반환합니다.
+  List<Task> get tasksForSelectedDate {
+    final all = storage.getTasksByDate(_selectedDate);
+    if (_locationFilter == null) return all;
+    return all.where((t) => t.location == _locationFilter).toList();
+  }
+
+
 
   // 시간이 지정된 할 일만, 시간순으로 정렬해서 반환
   List<Task> get timedTasks {
