@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import '../services/app_state.dart';
 import '../models/habit.dart';
 import '../theme/app_theme.dart';
+import 'habit_detail_screen.dart';
+
 
 class HabitsScreen extends StatelessWidget {
   const HabitsScreen({super.key});
@@ -73,10 +75,16 @@ class HabitsScreen extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
+       child: InkWell(
         borderRadius: BorderRadius.circular(16),
+        // 카드를 탭하면 달력 상세 화면으로 이동
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => HabitDetailScreen(habit: habit)),
+        ),
         // 길게 누르면 수정/삭제 메뉴
         onLongPress: () => _showHabitMenu(context, appState, habit),
+
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
