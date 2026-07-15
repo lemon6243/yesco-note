@@ -110,6 +110,7 @@ class StorageService {
 
   Future<void> saveReflection(Reflection reflection) async {
     await reflectionBox.put(reflection.id, reflection);
+  }
   // ---------------- Habit(습관) 관련 함수들 ----------------
 
   // 모든 습관을 가져옵니다. (보관된 것 포함)
@@ -123,7 +124,5 @@ class StorageService {
   // 습관 삭제
   Future<void> deleteHabit(String id) async {
     await habitBox.delete(id);
-  }
-
   }
 }
