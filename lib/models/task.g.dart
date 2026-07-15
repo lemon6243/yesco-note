@@ -28,14 +28,17 @@ class TaskAdapter extends TypeAdapter<Task> {
       isDone: fields[8] as bool,
       createdAt: fields[9] as DateTime,
       carriedOverFromId: fields[10] as String?,
-      location: fields[11] as String?, 
+      location: fields[11] as String?,
+      why: fields[12] as String?,
+      how: fields[13] as String?,
+      howMuch: fields[14] as String?,
     );
   }
 
-    @override
+  @override
   void write(BinaryWriter writer, Task obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,9 +62,14 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(10)
       ..write(obj.carriedOverFromId)
       ..writeByte(11)
-      ..write(obj.location);
+      ..write(obj.location)
+      ..writeByte(12)
+      ..write(obj.why)
+      ..writeByte(13)
+      ..write(obj.how)
+      ..writeByte(14)
+      ..write(obj.howMuch);
   }
-
 
   @override
   int get hashCode => typeId.hashCode;
