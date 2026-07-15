@@ -29,6 +29,9 @@ dependencies:
   # 고유 ID 생성 (할 일, 노트마다 구분되는 id 부여)
   uuid: ^4.5.1
 
+  # 월간 캘린더 위젯 (전체 일정을 한 달 단위로 보고 날짜 이동)
+  table_calendar: ^3.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
