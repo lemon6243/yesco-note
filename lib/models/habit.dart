@@ -17,9 +17,9 @@ import 'package:hive/hive.dart';
 
 part 'habit.g.dart';
 
-// typeId: 3번
-// (Task=0, Note=1, NoteStatus=2 를 이미 쓰고 있으므로 3번을 사용. 절대 겹치면 안 됨)
-@HiveType(typeId: 3)
+// typeId: 4번
+// (Task=0, Note=1, NoteStatus=2, Reflection=3 을 이미 쓰고 있으므로 4번을 사용. 절대 겹치면 안 됨)
+@HiveType(typeId: 4)
 class Habit extends HiveObject {
   // 습관의 고유 ID (다른 습관과 절대 겹치지 않는 문자열)
   @HiveField(0)
