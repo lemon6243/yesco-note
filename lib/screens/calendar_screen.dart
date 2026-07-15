@@ -191,7 +191,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             ),
                             trailing: task.startTime != null
                                 ? Text(
-                                    task.startTime!,
+                                    DateFormat('HH:mm').format(task.startTime!),
                                     style: const TextStyle(fontSize: 12),
                                   )
                                 : null,
