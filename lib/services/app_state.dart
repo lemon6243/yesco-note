@@ -122,6 +122,79 @@ class AppState extends ChangeNotifier {
   }
 
   // ---------------- Task(할 일) 관련 ----------------
+    // ---------------- 반복 할 일 자동 생성 ----------------
+
+  // 앱을 시작할 때 호출합니다.
+  // 반복 규칙이 있는 "원본 할 일"을 보고, 오늘 날짜에 해당하면
+  // 그날짜용 하루짜리 인스턴스를 자동으로 만들어 줍니다.
+  // (이미 만들어진 날은 건너뜀 → 중복 생성 방지)
+  Future<void> generateRepeatingTasks() async {
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+
+    // 반복 규칙이 있는 원본 할 일들만 골라냅니다.
+    // (repeatSourceId가 null = 사용자가 직접 만든 원본, 자동 생성 인스턴스가 아님)
+    final sources = storage.getAllTasks().where((t) {
+      return t.repeatRule != null && t.repeatSourceId == null;
+    }).toList();
+
+    for (final source in sources) {
+      // 이 원본이 오늘 반복되어야 하는지 판단합니다.
+      if (!_shouldRepeatOn(source, todayOnly)) continue;
+
+      // 이미 오늘 날짜로 이 원본에서 생성된 인스턴스가 있으면 건너뜁니다.
+      final alreadyMade = storage.getAllTasks().any(
+        (t) =>
+            t.repeatSourceId == source.id &&
+            t.date.year == todayOnly.year &&
+            t.date.month == todayOnly.month &&
+            t.date.day == todayOnly.day,
+      );
+      if (alreadyMade) continue;
+
+      // 오늘 날짜용 하루짜리 인스턴스를 새로 만듭니다.
+      // (인스턴스 자체는 반복 규칙을 갖지 않음 → 그냥 평범한 하루치 할 일)
+      final instance = Task(
+        id: _uuid.v4(),
+        title: source.title,
+        memo: source.memo,
+        startTime: source.startTime,
+        date: todayOnly,
+        isImportant: source.isImportant,
+        isUrgent: source.isUrgent,
+        isTop3: false,
+        isDone: false,
+        createdAt: DateTime.now(),
+        location: source.location,
+        why: source.why,
+        how: source.how,
+        howMuch: source.howMuch,
+        repeatRule: null, // 인스턴스는 반복 규칙 없음
+        repeatSourceId: source.id, // 어떤 원본에서 나왔는지 기록
+      );
+      await storage.saveTask(instance);
+    }
+    notifyListeners();
+  }
+
+  // 특정 원본 할 일이 주어진 날짜에 반복되어야 하는지 판단하는 도우미.
+  bool _shouldRepeatOn(Task source, DateTime date) {
+    if (source.repeatRule == 'daily') {
+      // 매일 반복: 원본을 만든 날짜부터 그 이후 매일
+      final srcDateOnly = DateTime(
+        source.date.year,
+        source.date.month,
+        source.date.day,
+      );
+      return !date.isBefore(srcDateOnly);
+    }
+    if (source.repeatRule == 'weekly') {
+      // 매주 특정 요일 반복: 오늘 요일이 선택된 요일 목록에 있는지 확인
+      return source.repeatWeekdays.contains(date.weekday);
+    }
+    return false;
+  }
+
   // ---------------- 장소 필터 (전체 / 집 / 외부) ----------------
   // null = 전체 보기, 'home' = 집만, 'outside' = 외부만
   String? _locationFilter;
