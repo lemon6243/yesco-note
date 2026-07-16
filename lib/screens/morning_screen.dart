@@ -31,10 +31,28 @@ class _MorningScreenState extends State<MorningScreen> {
   // 선택 가능한 목표 시간(분)
   static const List<int> _targetOptions = [15, 30, 45, 60, 90];
 
-  int _targetMinutes = 60; // 기본 목표: 60분 ("아침 1시간")
-  int _elapsedSeconds = 0; // 현재까지 흐른 시간(초)
+    int _targetMinutes = 60; // 기본 목표: 60분 ("아침 1시간")
+
+  // 타이머가 "돌기 시작한 시각". 이 값과 현재 시각의 차이로 흐른 시간을 계산합니다.
+  // 이렇게 하면 앱이 백그라운드로 가거나 화면이 꺼져도 실제 시간이 정확히 반영됩니다.
+  DateTime? _startTime;
+
+  // 일시정지하기 전까지 이미 쌓아둔 시간(초). 시작~일시정지를 반복해도 누적됩니다.
+  int _accumulatedSeconds = 0;
+
   bool _isRunning = false;
-  Timer? _timer;
+  Timer? _timer; // 화면의 숫자를 1초마다 새로 그리기 위한 용도(시간 계산과 무관)
+
+  // 지금까지 흐른 총 시간(초)을 계산합니다.
+  // = 이전에 쌓아둔 시간 + (돌고 있는 중이면 시작 시각부터 지금까지의 시간)
+  int get _elapsedSeconds {
+    int extra = 0;
+    if (_isRunning && _startTime != null) {
+      extra = DateTime.now().difference(_startTime!).inSeconds;
+    }
+    return _accumulatedSeconds + extra;
+  }
+
 
   int get _targetSeconds => _targetMinutes * 60;
 
@@ -44,55 +62,75 @@ class _MorningScreenState extends State<MorningScreen> {
     super.dispose();
   }
 
-  void _startPause() {
+    void _startPause() {
     if (_isRunning) {
-      // 일시정지
+      // 일시정지: 지금까지 흐른 시간을 누적값에 더해 저장하고 멈춤
+      _accumulatedSeconds = _elapsedSeconds;
+      _startTime = null;
       _timer?.cancel();
       setState(() => _isRunning = false);
     } else {
-      // 시작(또는 이어서 시작)
+      // 시작(또는 이어서 시작): 시작 시각을 기록하고, 화면 갱신용 타이머를 돌림
+      _startTime = DateTime.now();
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        setState(() => _elapsedSeconds++);
+        // 시간 자체는 _startTime 기준으로 계산되므로, 여기선 화면만 다시 그림
+        setState(() {});
       });
       setState(() => _isRunning = true);
     }
   }
 
-  void _reset() {
+
+    void _reset() {
     _timer?.cancel();
     setState(() {
       _isRunning = false;
-      _elapsedSeconds = 0;
+      _accumulatedSeconds = 0;
+      _startTime = null;
     });
   }
 
+
   // 타이머를 멈추고 기록을 저장합니다. (0초면 저장하지 않음)
-  Future<void> _finishAndSave(AppState appState) async {
-    if (_elapsedSeconds < 1) return;
+    Future<void> _finishAndSave(AppState appState) async {
+    // 저장할 시간을 먼저 확정해 둡니다. (이후 계산값이 흔들리지 않도록)
+    final savedSeconds = _elapsedSeconds;
+    if (savedSeconds < 1) return;
+
+    // 타이머를 멈춤
     _timer?.cancel();
-    setState(() => _isRunning = false);
+    setState(() {
+      _isRunning = false;
+      _accumulatedSeconds = savedSeconds;
+      _startTime = null;
+    });
 
     final memo = await _showMemoDialog(context);
     // 다이얼로그에서 뒤로가기(취소)해도 기록 자체는 저장합니다.
     // (메모는 선택사항일 뿐, 실천한 시간은 그대로 남겨야 하니까요.)
     await appState.addMorningSession(
-      durationSeconds: _elapsedSeconds,
+      durationSeconds: savedSeconds,
       targetSeconds: _targetSeconds,
       memo: memo,
     );
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('🌅 ${_formatDuration(_elapsedSeconds)} 기록 완료!')),
+        SnackBar(content: Text('🌅 ${_formatDuration(savedSeconds)} 기록 완료!')),
       );
-      setState(() => _elapsedSeconds = 0);
+      // 저장 후 타이머 초기화
+      setState(() {
+        _accumulatedSeconds = 0;
+        _startTime = null;
+      });
     }
   }
 
+
   // "무엇을 했는지" 메모 입력 다이얼로그
-  Future<String?> _showMemoDialog(BuildContext context) async {
+    Future<String?> _showMemoDialog(BuildContext context) async {
     final controller = TextEditingController();
-    return showDialog<String>(
+    final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('오늘 아침, 무엇을 하셨나요?'),
@@ -116,6 +154,8 @@ class _MorningScreenState extends State<MorningScreen> {
         ],
       ),
     );
+    controller.dispose(); // 다이얼로그가 닫힌 뒤 컨트롤러 정리 (메모리 누수 방지)
+    return result;
   }
 
   String _formatDuration(int totalSeconds) {
