@@ -83,6 +83,23 @@ class Task extends HiveObject {
   @HiveField(14)
   String? howMuch;
 
+    // ---------------- 반복 설정 (선택) ----------------
+  // 반복 종류. null = 반복 안 함, 'daily' = 매일, 'weekly' = 매주 특정 요일
+  @HiveField(15)
+  String? repeatRule;
+
+  // 매주 반복일 때 어떤 요일에 반복할지. (월=1 ~ 일=7, Dart weekday 기준)
+  // 예: [1, 3, 5] = 월·수·금. 매일('daily')이거나 반복 없음이면 비어 있음.
+  @HiveField(16)
+  List<int> repeatWeekdays;
+
+  // 이 할 일이 어떤 '반복 원본'에서 자동 생성된 것인지 추적하는 id.
+  // 반복 원본(사용자가 직접 만든 규칙 있는 할 일)이면 null,
+  // 자동 생성된 하루짜리 인스턴스면 원본의 id가 들어감.
+  @HiveField(17)
+  String? repeatSourceId;
+
+
   Task({
     required this.id,
     required this.title,
@@ -99,7 +116,11 @@ class Task extends HiveObject {
     this.why,
     this.how,
     this.howMuch,
-  });
+    this.repeatRule,
+    List<int>? repeatWeekdays,
+    this.repeatSourceId,
+  }) : repeatWeekdays = repeatWeekdays ?? [];
+
 
   // 중요도+긴급도 조합으로 어떤 사분면(매트릭스 칸)에 속하는지 계산합니다.
   // 0: 긴급&중요 / 1: 중요만 / 2: 긴급만 / 3: 둘 다 낮음
