@@ -15,6 +15,8 @@ import '../models/task.dart';
 import '../theme/app_theme.dart';
 import '../widgets/task_tile.dart';
 import 'task_edit_screen.dart';
+import 'calendar_screen.dart';
+
 
 class TodayScreen extends StatelessWidget {
   const TodayScreen({super.key});
@@ -87,21 +89,42 @@ class TodayScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.chevron_right,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                        onPressed: appState.goToNextDay,
+                                            Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.chevron_right,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            onPressed: appState.goToNextDay,
+                          ),
+                          // 월간 캘린더 열기 (전체 일정을 한눈에 보고 날짜 점프)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.calendar_month,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CalendarScreen(),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 14),
                   _buildTop3Card(context, appState),
                 ],
               ),
             ),
+            
             // ---------- 장소 필터 바 ----------
             _buildLocationFilterBar(context, appState),
             // ---------- 시간순 일정 리스트 ----------
