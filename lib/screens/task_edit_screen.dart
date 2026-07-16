@@ -32,6 +32,9 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   bool _isImportant = false;
   bool _isUrgent = false;
   String? _location; // 장소: 'home'(집) / 'outside'(외부) / null(미지정)
+  // ▼ 반복 설정
+  String? _repeatRule; // null(반복 없음) / 'daily'(매일) / 'weekly'(매주)
+  final List<int> _repeatWeekdays = []; // 매주 반복 시 선택된 요일 (월=1 ~ 일=7)
   // 5W2H 구체화 입력용 컨트롤러
   final _whyController = TextEditingController();
   final _howController = TextEditingController();
@@ -50,6 +53,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       _isImportant = task.isImportant;
       _isUrgent = task.isUrgent;
       _location = task.location;
+      _repeatRule = task.repeatRule;
+      _repeatWeekdays
+        ..clear()
+        ..addAll(task.repeatWeekdays);
       _whyController.text = task.why ?? '';
       _howController.text = task.how ?? '';
       _howMuchController.text = task.howMuch ?? '';
@@ -178,6 +185,64 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ),
               ],
             ),
+                        // ▼ 반복 설정 UI
+            const SizedBox(height: 24),
+            const Text(
+              '반복',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              children: [
+                ChoiceChip(
+                  label: const Text('반복 없음'),
+                  selected: _repeatRule == null,
+                  onSelected: (_) => setState(() {
+                    _repeatRule = null;
+                    _repeatWeekdays.clear();
+                  }),
+                ),
+                ChoiceChip(
+                  label: const Text('매일'),
+                  selected: _repeatRule == 'daily',
+                  onSelected: (_) => setState(() {
+                    _repeatRule = 'daily';
+                    _repeatWeekdays.clear();
+                  }),
+                ),
+                ChoiceChip(
+                  label: const Text('매주'),
+                  selected: _repeatRule == 'weekly',
+                  onSelected: (_) => setState(() => _repeatRule = 'weekly'),
+                ),
+              ],
+            ),
+            // 매주 반복일 때만 요일 칩을 보여줍니다. (월~일, 1~7)
+            if (_repeatRule == 'weekly') ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                children: List.generate(7, (i) {
+                  final weekday = i + 1; // 월=1 ... 일=7
+                  const labels = ['월', '화', '수', '목', '금', '토', '일'];
+                  final selected = _repeatWeekdays.contains(weekday);
+                  return FilterChip(
+                    label: Text(labels[i]),
+                    selected: selected,
+                    onSelected: (sel) => setState(() {
+                      if (sel) {
+                        _repeatWeekdays.add(weekday);
+                      } else {
+                        _repeatWeekdays.remove(weekday);
+                      }
+                    }),
+                  );
+                }),
+              ),
+            ],
+            // ▲ 반복 설정 UI 끝
+
             // ▼▼▼ 여기에 추가 ▼▼▼
             const SizedBox(height: 20),
             Card(
@@ -351,6 +416,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       task.isImportant = _isImportant;
       task.isUrgent = _isUrgent;
       task.location = _location;
+      task.repeatRule = _repeatRule;
+      task.repeatWeekdays = _repeatRule == 'weekly'
+          ? List<int>.from(_repeatWeekdays)
+          : [];
       task.why = _textOrNull(_whyController.text);
       task.how = _textOrNull(_howController.text);
       task.howMuch = _textOrNull(_howMuchController.text);
@@ -368,6 +437,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         isImportant: _isImportant,
         isUrgent: _isUrgent,
         location: _location,
+        repeatRule: _repeatRule,
+        repeatWeekdays: _repeatRule == 'weekly'
+            ? List<int>.from(_repeatWeekdays)
+            : [],
         why: _textOrNull(_whyController.text),
         how: _textOrNull(_howController.text),
         howMuch: _textOrNull(_howMuchController.text),
