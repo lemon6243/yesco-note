@@ -31,6 +31,7 @@ void main() async {
   final appState = AppState(storageService);
   await appState.loadThemePreference();
   await appState.initializeAndCarryOverTasks();
+  await appState.generateRepeatingTasks(); // 반복 할 일 오늘치 자동 생성
 
   runApp(ChangeNotifierProvider.value(value: appState, child: const MyApp()));
 }
