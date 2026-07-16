@@ -208,10 +208,15 @@ class AppState extends ChangeNotifier {
   // 선택된 날짜의 할 일 목록 (실시간으로 storage에서 다시 읽어옴)
   // 장소 필터가 켜져 있으면 해당 장소의 할 일만 걸러서 반환합니다.
   List<Task> get tasksForSelectedDate {
-    final all = storage.getTasksByDate(_selectedDate);
-    if (_locationFilter == null) return all;
-    return all.where((t) => t.location == _locationFilter).toList();
-  }
+  // 반복 규칙이 있는 "원본"은 목록에 표시하지 않습니다.
+  // (매일/매주 반복을 위한 설정용일 뿐, 실제로 보여줄 건 자동 생성된 인스턴스)
+   final all = storage
+       .getTasksByDate(_selectedDate)
+       .where((t) => t.repeatRule == null)
+       .toList();
+   if (_locationFilter == null) return all;
+   return all.where((t) => t.location == _locationFilter).toList();
+ }
 
   // 시간이 지정된 할 일만, 시간순으로 정렬해서 반환
   List<Task> get timedTasks {
