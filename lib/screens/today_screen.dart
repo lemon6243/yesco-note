@@ -119,8 +119,8 @@ class TodayScreen extends StatelessWidget {
                           const SizedBox(width: 92),
                         ],
                       ),
-
-
+                    ],
+                  ),
                   const SizedBox(height: 14),
                   _buildTop3Card(context, appState),
                 ],
