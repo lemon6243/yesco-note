@@ -100,7 +100,7 @@ class TodayScreen extends StatelessWidget {
                             ),
                             onPressed: appState.goToNextDay,
                           ),
-                          // 월간 캘린더 열기 (전체 일정을 한눈에 보고 날짜 점프)
+                                                    // 월간 캘린더 열기 (전체 일정을 한눈에 보고 날짜 점프)
                           IconButton(
                             icon: const Icon(
                               Icons.calendar_month,
@@ -114,10 +114,12 @@ class TodayScreen extends StatelessWidget {
                               ),
                             ),
                           ),
+                          // 화면 오른쪽 위에 겹쳐 뜨는 '검색·다크모드' 버튼과
+                          // 자리가 겹치지 않도록 그만큼 빈 공간을 둡니다.
+                          const SizedBox(width: 92),
                         ],
                       ),
-                    ],
-                  ),
+
 
                   const SizedBox(height: 14),
                   _buildTop3Card(context, appState),
