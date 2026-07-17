@@ -107,7 +107,7 @@ class DashboardScreen extends StatelessWidget {
 
     // 성장 캐릭터 카드 (동물 이모지 + 레벨 + 진행바)
   Widget _growthCard(BuildContext context, AppState appState) {
-    final emoji = appState.growthEmoji;
+    final imagePath = appState.growthImagePath;
     final level = appState.growthLevel;
     final stageName = appState.growthStageName;
     final progress = appState.growthProgress;
@@ -134,8 +134,14 @@ class DashboardScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 왼쪽: 큰 동물 이모지
-          Text(emoji, style: const TextStyle(fontSize: 56)),
+       // 왼쪽: 마스코트 이미지
+          Image.asset(
+            imagePath,
+            width: 72,
+            height: 72,
+            fit: BoxFit.contain,
+          ),
+
           const SizedBox(width: 18),
           // 오른쪽: 레벨/단계/진행바
           Expanded(
