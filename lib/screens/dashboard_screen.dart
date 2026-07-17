@@ -115,10 +115,9 @@ class DashboardScreen extends StatelessWidget {
     final animalName =
         AppState.availableAnimals[appState.growthAnimal] ?? '고양이';
 
-    return GestureDetector(
-      onTap: () => _showAnimalPicker(context, appState),
-      child: Container(
+      return Container(
       padding: const EdgeInsets.all(20),
+
 
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -179,12 +178,11 @@ class DashboardScreen extends StatelessWidget {
                 Text(
                   '다음 레벨까지 $pointsToNext점',
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }
