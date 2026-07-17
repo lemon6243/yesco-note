@@ -38,6 +38,39 @@ class TaskTile extends StatelessWidget {
     }
   }
 
+    // 카테고리 표시용 라벨 (뱃지에 들어갈 짧은 텍스트)
+  String _categoryLabel(String category) {
+    switch (category) {
+      case 'work':
+        return '💼 업무';
+      case 'side':
+        return '🚀 부업';
+      case 'private':
+        return '🏡 개인';
+      case 'invest':
+        return '📈 투자';
+      default:
+        return category;
+    }
+  }
+
+  // 카테고리별 색상
+  Color _categoryColor(String category) {
+    switch (category) {
+      case 'work':
+        return const Color(0xFF3B82F6); // 파랑
+      case 'side':
+        return const Color(0xFF8B5CF6); // 보라
+      case 'private':
+        return const Color(0xFF10B981); // 초록
+      case 'invest':
+        return const Color(0xFFF59E0B); // 주황
+      default:
+        return Colors.grey;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final timeText = task.startTime != null
@@ -105,6 +138,29 @@ class TaskTile extends StatelessWidget {
                   ),
                 ),
               // ▲▲▲ 여기까지 추가 ▲▲▲
+                            // ▼▼▼ 카테고리 뱃지 (업무/부업/개인/투자) ▼▼▼
+              if (task.category != null)
+                Container(
+                  margin: const EdgeInsets.only(left: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _categoryColor(task.category!).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    _categoryLabel(task.category!),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: _categoryColor(task.category!),
+                    ),
+                  ),
+                ),
+              // ▲▲▲ 카테고리 뱃지 끝 ▲▲▲
+
               // 오늘의 3가지 지정 별 아이콘
               if (onToggleTop3 != null)
                 IconButton(
