@@ -2,9 +2,10 @@
 // DashboardScreen (통합 통계 대시보드)
 // ------------------------------------------------------------
 // 그동안 쌓인 기록을 한눈에 보여주는 화면입니다.
-// - 상단: 요약 카드 4개 (완료한 할 일 / 습관 최고 연속 / 아침 총시간 / 아침 연속)
-// - 중간: 최근 7일 완료한 할 일 막대그래프
-// - 하단: 최근 7일 아침 집중 시간(분) 막대그래프
+// - 상단: 성장 마스코트 카드 (예스코 성장 단계 + 레벨 + 진행바)
+// - 요약 카드 4개 (완료한 할 일 / 습관 최고 연속 / 아침 총시간 / 아침 연속)
+// - 최근 7일 완료한 할 일 막대그래프
+// - 최근 7일 아침 집중 시간(분) 막대그래프
 // 새 데이터를 저장하지 않고, AppState의 통계 getter만 읽어서 보여줍니다.
 // ============================================================
 
@@ -33,11 +34,9 @@ class DashboardScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // ---- 성장 캐릭터 카드 ----
+            // ---- 성장 마스코트 카드 ----
             _growthCard(context, appState),
             const SizedBox(height: 24),
-
-            
 
             // ---- 요약 카드 4개 (2x2 그리드) ----
             GridView.count(
@@ -105,20 +104,16 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-    // 성장 캐릭터 카드 (동물 이모지 + 레벨 + 진행바)
+  // 성장 마스코트 카드 (예스코 이미지 + 레벨 + 진행바)
   Widget _growthCard(BuildContext context, AppState appState) {
     final imagePath = appState.growthImagePath;
     final level = appState.growthLevel;
     final stageName = appState.growthStageName;
     final progress = appState.growthProgress;
     final pointsToNext = appState.pointsToNextLevel;
-    final animalName =
-        AppState.availableAnimals[appState.growthAnimal] ?? '고양이';
 
-      return Container(
+    return Container(
       padding: const EdgeInsets.all(20),
-
-
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -133,14 +128,13 @@ class DashboardScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-       // 왼쪽: 마스코트 이미지
+          // 왼쪽: 마스코트 이미지
           Image.asset(
             imagePath,
             width: 72,
             height: 72,
             fit: BoxFit.contain,
           ),
-
           const SizedBox(width: 18),
           // 오른쪽: 레벨/단계/진행바
           Expanded(
@@ -148,7 +142,7 @@ class DashboardScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$animalName · $stageName',
+                  '예스코 · $stageName',
                   style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
@@ -178,67 +172,14 @@ class DashboardScreen extends StatelessWidget {
                 Text(
                   '다음 레벨까지 $pointsToNext점',
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-    // 동물 선택 팝업 (성장 카드를 누르면 뜸)
-    void _showAnimalPicker(BuildContext context, AppState appState) {
-      showModalBottomSheet(
-        context: context,
-        builder: (ctx) {
-          return SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 16),
-                const Text(
-                  '성장 동물 선택',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  '동물을 바꿔도 레벨과 점수는 그대로 유지돼요.',
-                  style: TextStyle(fontSize: 12, color: Colors.black54),
-                ),
-                const SizedBox(height: 12),
-                ...AppState.availableAnimals.entries.map((entry) {
-                  final key = entry.key;
-                  final name = entry.value;
-                  // 각 동물의 현재 단계 이모지 미리보기
-                  final stages = AppState.animalStages[key]!;
-                  final previewEmoji = stages[appState.growthStageIndex];
-                  final selected = appState.growthAnimal == key;
-                  return ListTile(
-                    leading: Text(
-                      previewEmoji,
-                      style: const TextStyle(fontSize: 30),
-                    ),
-                    title: Text(name),
-                    trailing: selected
-                        ? const Icon(Icons.check_circle, color: Colors.green)
-                        : null,
-                    onTap: () {
-                      appState.setGrowthAnimal(key);
-                      Navigator.pop(ctx);
-                    },
-                  );
-                }),
-                const SizedBox(height: 12),
               ],
             ),
-          );
-        },
-      );
-    }
-  
-
-
+          ),
+        ],
+      ),
+    );
+  }
 
   // 요약 카드 한 장
   Widget _summaryCard({
