@@ -16,6 +16,8 @@ import '../theme/app_theme.dart';
 import '../widgets/task_tile.dart';
 import 'task_edit_screen.dart';
 import 'calendar_screen.dart';
+import 'dashboard_screen.dart';
+
 
 
 class TodayScreen extends StatelessWidget {
@@ -114,9 +116,21 @@ class TodayScreen extends StatelessWidget {
                               ),
                             ),
                           ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.bar_chart_rounded,
+                              color: Colors.white, 
+                              size: 24
+                            ),
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const DashboardScreen()),
+                            ),
+                          ),
                           // 화면 오른쪽 위에 겹쳐 뜨는 '검색·다크모드' 버튼과
                           // 자리가 겹치지 않도록 그만큼 빈 공간을 둡니다.
-                          const SizedBox(width: 92),
+                          const SizedBox(width: 48),
                         ],
                       ),
                     ],
