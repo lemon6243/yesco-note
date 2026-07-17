@@ -183,6 +183,56 @@ class DashboardScreen extends StatelessWidget {
   );
 }
 
+    // 동물 선택 팝업 (성장 카드를 누르면 뜸)
+    void _showAnimalPicker(BuildContext context, AppState appState) {
+      showModalBottomSheet(
+        context: context,
+        builder: (ctx) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 16),
+                const Text(
+                  '성장 동물 선택',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  '동물을 바꿔도 레벨과 점수는 그대로 유지돼요.',
+                  style: TextStyle(fontSize: 12, color: Colors.black54),
+                ),
+                const SizedBox(height: 12),
+                ...AppState.availableAnimals.entries.map((entry) {
+                  final key = entry.key;
+                  final name = entry.value;
+                  // 각 동물의 현재 단계 이모지 미리보기
+                  final stages = AppState.animalStages[key]!;
+                  final previewEmoji = stages[appState.growthStageIndex];
+                  final selected = appState.growthAnimal == key;
+                  return ListTile(
+                    leading: Text(
+                      previewEmoji,
+                      style: const TextStyle(fontSize: 30),
+                    ),
+                    title: Text(name),
+                    trailing: selected
+                        ? const Icon(Icons.check_circle, color: Colors.green)
+                        : null,
+                    onTap: () {
+                      appState.setGrowthAnimal(key);
+                      Navigator.pop(ctx);
+                    },
+                  );
+                }),
+                const SizedBox(height: 12),
+              ],
+            ),
+          );
+        },
+      );
+    }
+  
 
 
 
