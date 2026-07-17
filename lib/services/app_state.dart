@@ -509,4 +509,88 @@ class AppState extends ChangeNotifier {
     await storage.deleteMorningSession(id);
     notifyListeners();
   }
+    Future<void> deleteMorningSession(String id) async {
+    await storage.deleteMorningSession(id);
+    notifyListeners();
+  }
+
+  // ---------------- 통합 통계 (대시보드용) ----------------
+
+  // 최근 7일 날짜 목록을 반환합니다. (오래된 날 → 오늘 순서)
+  // 예: 오늘이 16일이면 [10,11,12,13,14,15,16]
+  List<DateTime> get last7Days {
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    return List.generate(7, (i) => todayOnly.subtract(Duration(days: 6 - i)));
+  }
+
+  // --- 할 일(Task) 통계 ---
+
+  // 지금까지 완료한 할 일 총 개수
+  int get totalCompletedTasks =>
+      storage.getAllTasks().where((t) => t.isDone).length;
+
+  // 특정 날짜에 완료한 할 일 개수
+  int completedTaskCountOn(DateTime date) {
+    return storage.getAllTasks().where((t) {
+      return t.isDone &&
+          t.date.year == date.year &&
+          t.date.month == date.month &&
+          t.date.day == date.day;
+    }).length;
+  }
+
+  // 오늘의 완료율(0.0~1.0). 오늘 할 일이 없으면 0.
+  // (반복 원본은 제외하고, 오늘 날짜의 실제 할 일 기준)
+  double get todayCompletionRate {
+    final today = DateTime.now();
+    final todays = storage
+        .getTasksByDate(today)
+        .where((t) => t.repeatRule == null)
+        .toList();
+    if (todays.isEmpty) return 0;
+    final done = todays.where((t) => t.isDone).length;
+    return done / todays.length;
+  }
+
+  // 최근 7일간 하루별 완료한 할 일 개수 (그래프용)
+  List<int> get last7DaysCompletedTasks =>
+      last7Days.map((d) => completedTaskCountOn(d)).toList();
+
+  // --- 습관(Habit) 통계 ---
+
+  // 활성 습관 개수
+  int get activeHabitCount => activeHabits.length;
+
+  // 특정 날짜에 체크된 습관 개수 (활성 습관 기준)
+  int habitCheckCountOn(DateTime date) {
+    return activeHabits.where((h) => h.isCheckedOn(date)).length;
+  }
+
+  // 최근 7일간 하루별 습관 체크 개수 (그래프용)
+  List<int> get last7DaysHabitChecks =>
+      last7Days.map((d) => habitCheckCountOn(d)).toList();
+
+  // 모든 활성 습관의 연속일수 중 가장 긴 값 (대표 스트릭)
+  int get bestHabitStreak {
+    if (activeHabits.isEmpty) return 0;
+    return activeHabits
+        .map((h) => h.currentStreak)
+        .reduce((a, b) => a > b ? a : b);
+  }
+
+  // --- 아침 세션 통계 ---
+
+  // 특정 날짜의 아침 집중 시간(초 합계)
+  int morningSecondsOn(DateTime date) {
+    return storage
+        .getMorningSessionsByDate(date)
+        .fold(0, (sum, s) => sum + s.durationSeconds);
+  }
+
+  // 최근 7일간 하루별 아침 집중 시간(분 단위, 그래프용)
+  List<int> get last7DaysMorningMinutes =>
+      last7Days.map((d) => (morningSecondsOn(d) / 60).round()).toList();
+  }
+
 }
