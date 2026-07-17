@@ -46,6 +46,30 @@ class AppState extends ChangeNotifier {
     await prefs.setBool(_darkModeKey, _isDarkMode);
   }
 
+  
+  // ---------------- 성장 동물 선택 ----------------
+  // 저장되는 값: 'cat' / 'dog' / 'panda' / 'bear'
+  String _growthAnimal = 'cat';
+  String get growthAnimal => _growthAnimal;
+
+  static const String _growthAnimalKey = 'growth_animal';
+
+  // 저장된 동물 선택을 불러옵니다. (앱 시작 시 1회 호출)
+  Future<void> loadGrowthAnimal() async {
+    final prefs = await SharedPreferences.getInstance();
+    _growthAnimal = prefs.getString(_growthAnimalKey) ?? 'cat';
+    notifyListeners();
+  }
+
+  // 동물을 바꾸고 기기에 저장합니다.
+  Future<void> setGrowthAnimal(String animal) async {
+    _growthAnimal = animal;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_growthAnimalKey, animal);
+  }
+
+
   // ---------------- 오늘 화면에서 보고 있는 날짜 ----------------
   DateTime _selectedDate = DateTime.now();
   DateTime get selectedDate => _selectedDate;
@@ -587,4 +611,61 @@ class AppState extends ChangeNotifier {
   // 최근 7일간 하루별 아침 집중 시간(분 단위, 그래프용)
   List<int> get last7DaysMorningMinutes =>
       last7Days.map((d) => (morningSecondsOn(d) / 60).round()).toList();
+  
+  // ---------------- 성장 시스템 (다마고치식) ----------------
+  // 점수: 할 일 1개=2점, 습관 체크 1회=3점, 아침 세션 1회=5점
+  // 레벨: 100점마다 +1 (레벨 1부터 시작)
+  // 성장 단계: 알 → 아기 → 성체 → 다 큰 → 마스터 (레벨 구간별)
+
+  int get growthPoints {
+    final taskPoints = totalCompletedTasks * 2;
+    final habitChecks =
+        activeHabits.fold<int>(0, (sum, h) => sum + h.checkedDates.length);
+    final habitPoints = habitChecks * 3;
+    final morningPoints = totalMorningSessionCount * 5;
+    return taskPoints + habitPoints + morningPoints;
+  }
+
+  int get growthLevel => (growthPoints ~/ 100) + 1;
+  double get growthProgress => (growthPoints % 100) / 100;
+  int get pointsToNextLevel => 100 - (growthPoints % 100);
+
+  // 성장 단계 인덱스 (0~4): 0=알, 1=아기, 2=성체, 3=다 큰, 4=마스터
+  int get growthStageIndex {
+    final level = growthLevel;
+    if (level >= 20) return 4;
+    if (level >= 12) return 3;
+    if (level >= 7) return 2;
+    if (level >= 3) return 1;
+    return 0;
+  }
+
+  // 선택된 동물의 현재 단계 이모지
+  String get growthEmoji {
+    final stages = animalStages[_growthAnimal] ?? animalStages['cat']!;
+    return stages[growthStageIndex];
+  }
+
+  // 현재 성장 단계 이름
+  String get growthStageName {
+    const names = ['알', '아기', '성체', '다 큰', '마스터'];
+    return names[growthStageIndex];
+  }
+
+  // 동물별 5단계 이모지 (알 → 아기 → 성체 → 다 큰 → 마스터)
+  // 나중에 이미지로 교체할 때 이 부분만 바꾸면 됩니다.
+  static const Map<String, List<String>> animalStages = {
+    'cat': ['🥚', '🐱', '🐈', '🐈✨', '🐈👑'],
+    'dog': ['🥚', '🐶', '🐕', '🦮✨', '🐕👑'],
+    'panda': ['🥚', '🐼', '🐼', '🐼✨', '🐼👑'],
+    'bear': ['🥚', '🐻', '🐻', '🐻✨', '🐻👑'],
+  };
+
+  // 선택 가능한 동물 목록 (선택 UI에서 사용)
+  static const Map<String, String> availableAnimals = {
+    'cat': '고양이',
+    'dog': '강아지',
+    'panda': '판다',
+    'bear': '곰',
+  };
 }
