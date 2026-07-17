@@ -640,10 +640,17 @@ class AppState extends ChangeNotifier {
     return 0;
   }
 
-  // 선택된 동물의 현재 단계 이모지
-  String get growthEmoji {
-    final stages = animalStages[_growthAnimal] ?? animalStages['cat']!;
-    return stages[growthStageIndex];
+  // 현재 성장 단계에 맞는 마스코트 이미지 경로
+  // 0단계(알)는 공통 egg.png, 1~4단계는 yesco1~4.png
+  String get growthImagePath {
+    final stageFiles = [
+      'assets/growth/egg.png',    // 0: 알
+      'assets/growth/yesco1.png', // 1: 아기
+      'assets/growth/yesco2.png', // 2: 성체
+      'assets/growth/yesco3.png', // 3: 다 큰
+      'assets/growth/yesco4.png', // 4: 마스터
+    ];
+    return stageFiles[growthStageIndex];
   }
 
   // 현재 성장 단계 이름
