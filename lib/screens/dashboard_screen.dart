@@ -98,6 +98,7 @@ class DashboardScreen extends StatelessWidget {
               unit: '분',
             ),
             // ---- 이번 주 카테고리별 완료 ----
+            const SizedBox(height: 24),
             _sectionTitle('이번 주 · 카테고리별 완료'),
             const SizedBox(height: 12),
             _categoryCard(context, appState),
