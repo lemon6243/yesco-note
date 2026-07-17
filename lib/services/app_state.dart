@@ -229,6 +229,17 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ---------------- 카테고리 필터 (전체 / 업무 / 부업 / 개인 / 투자) ----------------
+  // null = 전체 보기, 'work'/'side'/'private'/'invest' = 해당 카테고리만
+  String? _categoryFilter;
+  String? get categoryFilter => _categoryFilter;
+
+  void setCategoryFilter(String? category) {
+    _categoryFilter = category;
+    notifyListeners();
+  }
+
+
   // 선택된 날짜의 할 일 목록 (실시간으로 storage에서 다시 읽어옴)
   // 장소 필터가 켜져 있으면 해당 장소의 할 일만 걸러서 반환합니다.
   List<Task> get tasksForSelectedDate {
@@ -238,8 +249,14 @@ class AppState extends ChangeNotifier {
        .getTasksByDate(_selectedDate)
        .where((t) => t.repeatRule == null)
        .toList();
-   if (_locationFilter == null) return all;
-   return all.where((t) => t.location == _locationFilter).toList();
+    var filtered = all;
+    if (_locationFilter != null) {
+      filtered = filtered.where((t) => t.location == _locationFilter).toList();
+    }
+    if (_categoryFilter != null) {
+      filtered = filtered.where((t) => t.category == _categoryFilter).toList();
+    }
+    return filtered;
  }
 
   // 시간이 지정된 할 일만, 시간순으로 정렬해서 반환
