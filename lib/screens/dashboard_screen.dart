@@ -97,7 +97,12 @@ class DashboardScreen extends StatelessWidget {
               barColor: Colors.indigo,
               unit: '분',
             ),
+            // ---- 이번 주 카테고리별 완료 ----
+            _sectionTitle('이번 주 · 카테고리별 완료'),
+            const SizedBox(height: 12),
+            _categoryCard(context, appState),
             const SizedBox(height: 16),
+
           ],
         ),
       ),
@@ -280,6 +285,97 @@ class DashboardScreen extends StatelessWidget {
           );
         }),
       ),
+    );
+  }
+    // 이번 주 카테고리별 완료 개수 (가로 막대)
+  Widget _categoryCard(BuildContext context, AppState appState) {
+    final counts = appState.weeklyCategoryCounts;
+    final total = appState.weeklyCategoryTotal;
+
+    // 표시 순서 + 라벨 + 색상 정의
+    const order = ['work', 'side', 'private', 'invest'];
+    const labels = {
+      'work': '💼 업무',
+      'side': '🚀 부업',
+      'private': '🏡 개인',
+      'invest': '📈 투자',
+    };
+    const colors = {
+      'work': Color(0xFF3B82F6),
+      'side': Color(0xFF8B5CF6),
+      'private': Color(0xFF10B981),
+      'invest': Color(0xFFF59E0B),
+    };
+
+    // 막대 비율 계산용 최대값 (0이면 1로)
+    final maxCount = counts.values.fold<int>(0, (m, v) => v > m ? v : m);
+    final safeMax = maxCount == 0 ? 1 : maxCount;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+      ),
+      child: total == 0
+          ? const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                '이번 주에 완료한 할 일이 아직 없어요.\n할 일에 카테고리를 지정하면 여기 통계가 쌓여요.',
+                style: TextStyle(fontSize: 13, color: Colors.black54),
+                textAlign: TextAlign.center,
+              ),
+            )
+          : Column(
+              children: order.map((key) {
+                final count = counts[key] ?? 0;
+                final ratio = count / safeMax;
+                final color = colors[key]!;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      // 라벨
+                      SizedBox(
+                        width: 68,
+                        child: Text(
+                          labels[key]!,
+                          style: const TextStyle(fontSize: 12.5),
+                        ),
+                      ),
+                      // 가로 막대
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: LinearProgressIndicator(
+                            value: ratio,
+                            minHeight: 14,
+                            backgroundColor:
+                                Colors.grey.withValues(alpha: 0.15),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(color),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // 개수
+                      SizedBox(
+                        width: 32,
+                        child: Text(
+                          '$count',
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
     );
   }
 }
