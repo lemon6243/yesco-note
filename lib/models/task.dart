@@ -99,6 +99,12 @@ class Task extends HiveObject {
   @HiveField(17)
   String? repeatSourceId;
 
+  
+  // ---------------- 카테고리 분류 (선택) ----------------
+  // 이 할 일이 어떤 영역인지. 'work' = 업무, 'side' = 부업,
+  // 'private' = 개인, 'invest' = 투자. null 이면 미지정.
+  @HiveField(18)
+  String? category;
 
   Task({
     required this.id,
@@ -117,6 +123,7 @@ class Task extends HiveObject {
     this.how,
     this.howMuch,
     this.repeatRule,
+    this.category,
     List<int>? repeatWeekdays,
     this.repeatSourceId,
   }) : repeatWeekdays = repeatWeekdays ?? [];
