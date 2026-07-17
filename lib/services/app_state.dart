@@ -505,10 +505,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteMorningSession(String id) async {
-    await storage.deleteMorningSession(id);
-    notifyListeners();
-  }
     Future<void> deleteMorningSession(String id) async {
     await storage.deleteMorningSession(id);
     notifyListeners();
@@ -591,6 +587,4 @@ class AppState extends ChangeNotifier {
   // 최근 7일간 하루별 아침 집중 시간(분 단위, 그래프용)
   List<int> get last7DaysMorningMinutes =>
       last7Days.map((d) => (morningSecondsOn(d) / 60).round()).toList();
-  }
-
 }
