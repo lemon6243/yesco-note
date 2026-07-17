@@ -115,8 +115,11 @@ class DashboardScreen extends StatelessWidget {
     final animalName =
         AppState.availableAnimals[appState.growthAnimal] ?? '고양이';
 
-    return Container(
+    return GestureDetector(
+      onTap: () => _showAnimalPicker(context, appState),
+      child: Container(
       padding: const EdgeInsets.all(20),
+
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -176,8 +179,10 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
 
 
