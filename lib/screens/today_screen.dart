@@ -143,8 +143,11 @@ class TodayScreen extends StatelessWidget {
             
             // ---------- 장소 필터 바 ----------
             _buildLocationFilterBar(context, appState),
+            // ---------- 카테고리 필터 바 ----------
+            _buildCategoryFilterBar(context, appState),
             // ---------- 시간순 일정 리스트 ----------
             Expanded(child: _buildTaskList(context, appState)),
+
           ],
         ),
       ),
@@ -256,6 +259,40 @@ class TodayScreen extends StatelessWidget {
       ),
     );
   }
+
+  // 카테고리 필터 바 (전체 / 💼 업무 / 🚀 부업 / 🏡 개인 / 📈 투자)
+  Widget _buildCategoryFilterBar(BuildContext context, AppState appState) {
+    final current = appState.categoryFilter; // null / 'work' / 'side' / 'private' / 'invest'
+
+    Widget chip(String label, String? value) {
+      final selected = current == value;
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: ChoiceChip(
+          label: Text(label),
+          selected: selected,
+          onSelected: (_) => appState.setCategoryFilter(value),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            chip('전체', null),
+            chip('💼 업무', 'work'),
+            chip('🚀 부업', 'side'),
+            chip('🏡 개인', 'private'),
+            chip('📈 투자', 'invest'),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   // 시간순/시간미정 리스트 전체
   Widget _buildTaskList(BuildContext context, AppState appState) {
