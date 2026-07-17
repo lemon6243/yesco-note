@@ -30,6 +30,7 @@ void main() async {
   // 앱 상태 객체 생성 후, 다크모드 설정 불러오기 + 미완료 할 일 이월 처리
   final appState = AppState(storageService);
   await appState.loadThemePreference();
+  await appState.loadGrowthAnimal(); // 저장된 성장 동물 불러오기
   await appState.initializeAndCarryOverTasks();
   await appState.generateRepeatingTasks(); // 반복 할 일 오늘치 자동 생성
 
