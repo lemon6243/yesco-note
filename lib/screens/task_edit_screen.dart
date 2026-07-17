@@ -32,6 +32,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   bool _isImportant = false;
   bool _isUrgent = false;
   String? _location; // 장소: 'home'(집) / 'outside'(외부) / null(미지정)
+  String? _category; // 카테고리: 'work'(업무)/'side'(부업)/'private'(개인)/'invest'(투자)/null
+
   // ▼ 반복 설정
   String? _repeatRule; // null(반복 없음) / 'daily'(매일) / 'weekly'(매주)
   final List<int> _repeatWeekdays = []; // 매주 반복 시 선택된 요일 (월=1 ~ 일=7)
@@ -53,6 +55,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       _isImportant = task.isImportant;
       _isUrgent = task.isUrgent;
       _location = task.location;
+      _category = task.category;
       _repeatRule = task.repeatRule;
       _repeatWeekdays
         ..clear()
@@ -185,6 +188,43 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ),
               ],
             ),
+
+                        const SizedBox(height: 24),
+            const Text(
+              '카테고리',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              children: [
+                ChoiceChip(
+                  label: const Text('💼 업무'),
+                  selected: _category == 'work',
+                  onSelected: (sel) =>
+                      setState(() => _category = sel ? 'work' : null),
+                ),
+                ChoiceChip(
+                  label: const Text('🚀 부업'),
+                  selected: _category == 'side',
+                  onSelected: (sel) =>
+                      setState(() => _category = sel ? 'side' : null),
+                ),
+                ChoiceChip(
+                  label: const Text('🏡 개인'),
+                  selected: _category == 'private',
+                  onSelected: (sel) =>
+                      setState(() => _category = sel ? 'private' : null),
+                ),
+                ChoiceChip(
+                  label: const Text('📈 투자'),
+                  selected: _category == 'invest',
+                  onSelected: (sel) =>
+                      setState(() => _category = sel ? 'invest' : null),
+                ),
+              ],
+            ),
+
                         // ▼ 반복 설정 UI
             const SizedBox(height: 24),
             const Text(
@@ -416,6 +456,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       task.isImportant = _isImportant;
       task.isUrgent = _isUrgent;
       task.location = _location;
+      task.category = _category;
       task.repeatRule = _repeatRule;
       task.repeatWeekdays = _repeatRule == 'weekly'
           ? List<int>.from(_repeatWeekdays)
@@ -437,6 +478,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         isImportant: _isImportant,
         isUrgent: _isUrgent,
         location: _location,
+        category: _category,
         repeatRule: _repeatRule,
         repeatWeekdays: _repeatRule == 'weekly'
             ? List<int>.from(_repeatWeekdays)
