@@ -33,6 +33,12 @@ class DashboardScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // ---- 성장 캐릭터 카드 ----
+            _growthCard(context, appState),
+            const SizedBox(height: 24),
+
+            
+
             // ---- 요약 카드 4개 (2x2 그리드) ----
             GridView.count(
               crossAxisCount: 2,
@@ -98,6 +104,82 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
+
+    // 성장 캐릭터 카드 (동물 이모지 + 레벨 + 진행바)
+  Widget _growthCard(BuildContext context, AppState appState) {
+    final emoji = appState.growthEmoji;
+    final level = appState.growthLevel;
+    final stageName = appState.growthStageName;
+    final progress = appState.growthProgress;
+    final pointsToNext = appState.pointsToNextLevel;
+    final animalName =
+        AppState.availableAnimals[appState.growthAnimal] ?? '고양이';
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.green.withValues(alpha: 0.15),
+            Colors.teal.withValues(alpha: 0.08),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          // 왼쪽: 큰 동물 이모지
+          Text(emoji, style: const TextStyle(fontSize: 56)),
+          const SizedBox(width: 18),
+          // 오른쪽: 레벨/단계/진행바
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$animalName · $stageName',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Lv. $level',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // 다음 레벨까지 진행바
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 10,
+                    backgroundColor: Colors.grey.withValues(alpha: 0.2),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.green),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '다음 레벨까지 $pointsToNext점',
+                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   // 요약 카드 한 장
   Widget _summaryCard({
