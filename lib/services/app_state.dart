@@ -612,6 +612,42 @@ class AppState extends ChangeNotifier {
   List<int> get last7DaysMorningMinutes =>
       last7Days.map((d) => (morningSecondsOn(d) / 60).round()).toList();
   
+  // ---------------- 카테고리 통계 (대시보드용) ----------------
+  // 카테고리: 'work'(업무) / 'side'(부업) / 'private'(개인) / 'invest'(투자)
+
+  // 이번 주(최근 7일) 완료한 할 일을 카테고리별로 카운트.
+  // 반환 예: {'work': 12, 'side': 5, 'private': 3, 'invest': 2}
+  // (카테고리 미지정 할 일은 집계에서 제외)
+  Map<String, int> get weeklyCategoryCounts {
+    final counts = <String, int>{
+      'work': 0,
+      'side': 0,
+      'private': 0,
+      'invest': 0,
+    };
+    final days = last7Days;
+    final first = days.first; // 7일 전
+    final last = days.last;   // 오늘
+
+    for (final t in storage.getAllTasks()) {
+      if (!t.isDone) continue;
+      if (t.category == null) continue;
+      if (!counts.containsKey(t.category)) continue;
+
+      final d = DateTime(t.date.year, t.date.month, t.date.day);
+      // first ~ last 범위(양끝 포함)에 드는지 확인
+      if (d.isBefore(first) || d.isAfter(last)) continue;
+
+      counts[t.category!] = counts[t.category!]! + 1;
+    }
+    return counts;
+  }
+
+  // 이번 주 카테고리별 완료 합계 (그래프 최대값 계산 등에 사용)
+  int get weeklyCategoryTotal =>
+      weeklyCategoryCounts.values.fold(0, (sum, v) => sum + v);
+
+  
   // ---------------- 성장 시스템 (다마고치식) ----------------
   // 점수: 할 일 1개=2점, 습관 체크 1회=3점, 아침 세션 1회=5점
   // 레벨: 100점마다 +1 (레벨 1부터 시작)
