@@ -12,6 +12,8 @@ import '../models/note.dart';
 import '../models/reflection.dart';
 import '../models/habit.dart';
 import '../models/morning_session.dart';
+import '../models/project.dart';
+
 
 class StorageService {
   // Hive의 "박스(Box)"는 하나의 테이블(엑셀 시트)이라고 생각하면 됩니다.
@@ -20,6 +22,8 @@ class StorageService {
   static const String reflectionBoxName = 'reflections';
   static const String habitBoxName = 'habits';
   static const String morningSessionBoxName = 'morning_sessions';
+  static const String projectBoxName = 'projects';
+
 
   late Box<Task> taskBox;
   late Box<Note> noteBox;
@@ -50,14 +54,18 @@ class StorageService {
     if (!Hive.isAdapterRegistered(5)) {
       Hive.registerAdapter(MorningSessionAdapter());
     }
+        if (!Hive.isAdapterRegistered(6)) {
+      Hive.registerAdapter(ProjectAdapter());
+    }
+
 
     taskBox = await Hive.openBox<Task>(taskBoxName);
     noteBox = await Hive.openBox<Note>(noteBoxName);
     reflectionBox = await Hive.openBox<Reflection>(reflectionBoxName);
     habitBox = await Hive.openBox<Habit>(habitBoxName);
-    morningSessionBox = await Hive.openBox<MorningSession>(
-      morningSessionBoxName,
-    );
+    morningSessionBox = await Hive.openBox<MorningSession>(morningSessionBoxName,);
+    projectBox = await Hive.openBox<Project>(projectBoxName);
+
   }
 
   // ---------------- Task 관련 함수들 ----------------
@@ -160,4 +168,33 @@ class StorageService {
   Future<void> deleteMorningSession(String id) async {
     await morningSessionBox.delete(id);
   }
+  // ---------------- Project(프로젝트) 관련 함수들 ----------------
+
+  // 모든 프로젝트를 최신 생성순으로 가져옵니다.
+  List<Project> getAllProjects() {
+    final list = projectBox.values.toList();
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
+  }
+
+  // 특정 프로젝트에 속한 할 일들을 가져옵니다.
+  List<Task> getTasksByProject(String projectId) {
+    return taskBox.values.where((t) => t.projectId == projectId).toList();
+  }
+
+  // 프로젝트 저장 (새로 추가하거나 기존 것을 수정할 때 모두 사용)
+  Future<void> saveProject(Project project) async {
+    await projectBox.put(project.id, project);
+  }
+
+  // 프로젝트 삭제 (이 프로젝트에 묶여 있던 할 일들은
+  // projectId를 null로 되돌려 "미분류 할 일"로 남깁니다)
+  Future<void> deleteProject(String id) async {
+    for (final task in taskBox.values.where((t) => t.projectId == id).toList()) {
+      task.projectId = null;
+      await taskBox.put(task.id, task);
+    }
+    await projectBox.delete(id);
+  }
+
 }
