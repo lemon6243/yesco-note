@@ -292,6 +292,28 @@ class ProjectListScreen extends StatelessWidget {
                   onSelect: (value) => setState(() => selectedColor = value),
                 ),
               ],
+                              const SizedBox(height: 16),
+                Text(
+                  '기간 (선택)',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: Theme.of(ctx).disabledColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildDateRow(
+                  context: ctx,
+                  label: '시작일',
+                  value: startDate,
+                  onPick: (d) => setState(() => startDate = d),
+                ),
+                _buildDateRow(
+                  context: ctx,
+                  label: '마감일',
+                  value: dueDate,
+                  onPick: (d) => setState(() => dueDate = d),
+                ),
+
             ),
           ),
           actions: [
@@ -418,6 +440,28 @@ class ProjectListScreen extends StatelessWidget {
                   onSelect: (value) => setState(() => selectedColor = value),
                 ),
               ],
+                const SizedBox(height: 16),
+                Text(
+                  '기간 (선택)',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: Theme.of(ctx).disabledColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildDateRow(
+                  context: ctx,
+                  label: '시작일',
+                  value: startDate,
+                  onPick: (d) => setState(() => startDate = d),
+                ),
+                _buildDateRow(
+                  context: ctx,
+                  label: '마감일',
+                  value: dueDate,
+                  onPick: (d) => setState(() => dueDate = d),
+                ),
+
             ),
           ),
           actions: [
