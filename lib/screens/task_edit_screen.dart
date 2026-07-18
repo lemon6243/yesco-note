@@ -531,6 +531,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       task.isUrgent = _isUrgent;
       task.location = _location;
       task.category = _category;
+      task.projectId = _projectId;
       task.repeatRule = _repeatRule;
       task.repeatWeekdays = _repeatRule == 'weekly'
           ? List<int>.from(_repeatWeekdays)
@@ -553,6 +554,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         isUrgent: _isUrgent,
         location: _location,
         category: _category,
+        projectId: _projectId,
         repeatRule: _repeatRule,
         repeatWeekdays: _repeatRule == 'weekly'
             ? List<int>.from(_repeatWeekdays)
