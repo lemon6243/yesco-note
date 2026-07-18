@@ -16,6 +16,8 @@ import 'notes_screen.dart';
 import 'reflection_screen.dart';
 import 'habits_screen.dart';
 import 'search_screen.dart';
+import 'project_list_screen.dart';
+
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -59,6 +61,17 @@ class _MainNavigationState extends State<MainNavigation> {
                       MaterialPageRoute(builder: (_) => const SearchScreen()),
                     ),
                   ),
+                 const SizedBox(width: 6),
+                  _circleIconButton(
+                    icon: Icons.folder_outlined,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ProjectListScreen(),
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(width: 6),
                   _circleIconButton(
                     icon: appState.isDarkMode
