@@ -17,6 +17,7 @@ import '../models/note.dart';
 import '../models/reflection.dart';
 import '../models/habit.dart';
 import '../models/morning_session.dart';
+import '../models/project.dart';
 import 'storage_service.dart';
 
 class AppState extends ChangeNotifier {
@@ -728,4 +729,68 @@ class AppState extends ChangeNotifier {
     'panda': '판다',
     'bear': '곰',
   };
+  
+  // ---------------- Project(프로젝트) 관련 ----------------
+
+  // 모든 프로젝트 목록 (최신 생성순). storage에서 실시간으로 읽어옴.
+  List<Project> get allProjects => storage.getAllProjects();
+
+  // 진행 중인 프로젝트만 (완료되지 않은 것)
+  List<Project> get activeProjects =>
+      storage.getAllProjects().where((p) => !p.isDone).toList();
+
+  // 새 프로젝트 추가.
+  // name은 필수, 나머지는 선택. 색상은 기본값(파랑)을 쓰거나 지정 가능.
+  Future<void> addProject(
+    String name, {
+    String? description,
+    int colorValue = 0xFF3B82F6,
+    DateTime? startDate,
+    DateTime? dueDate,
+  }) async {
+    final project = Project(
+      id: _uuid.v4(),
+      name: name,
+      description: description,
+      colorValue: colorValue,
+      startDate: startDate,
+      dueDate: dueDate,
+      createdAt: DateTime.now(),
+    );
+    await storage.saveProject(project);
+    notifyListeners();
+  }
+
+  // 프로젝트 정보 수정 (이름·색상·기간·완료여부 등 변경 후 호출)
+  Future<void> updateProject(Project project) async {
+    await storage.saveProject(project);
+    notifyListeners();
+  }
+
+  // 프로젝트 삭제. 이 프로젝트에 묶여 있던 할 일들은
+  // storage 쪽에서 projectId가 null로 되돌려져 "미분류"로 남습니다.
+  Future<void> deleteProject(String id) async {
+    await storage.deleteProject(id);
+    notifyListeners();
+  }
+
+  // 프로젝트 완료/미완료를 토글합니다.
+  Future<void> toggleProjectDone(Project project) async {
+    project.isDone = !project.isDone;
+    await storage.saveProject(project);
+    notifyListeners();
+  }
+
+  // 특정 프로젝트에 속한 할 일 목록.
+  List<Task> tasksOfProject(String projectId) =>
+      storage.getTasksByProject(projectId);
+
+  // 특정 프로젝트의 진행률(0.0~1.0). 속한 할 일 중 완료 비율.
+  // 할 일이 하나도 없으면 0을 반환.
+  double projectProgress(String projectId) {
+    final tasks = storage.getTasksByProject(projectId);
+    if (tasks.isEmpty) return 0;
+    final done = tasks.where((t) => t.isDone).length;
+    return done / tasks.length;
+  }
 }
