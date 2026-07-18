@@ -106,6 +106,14 @@ class Task extends HiveObject {
   @HiveField(18)
   String? category;
 
+  // ---------------- 프로젝트 연결 (선택) ----------------
+  // 이 할 일이 어느 프로젝트에 속하는지 가리키는 id.
+  // Project.id 값을 저장하며, null 이면 어떤 프로젝트에도
+  // 묶이지 않은 일반 할 일입니다.
+  @HiveField(19)
+  String? projectId;
+
+
   Task({
     required this.id,
     required this.title,
@@ -124,6 +132,7 @@ class Task extends HiveObject {
     this.howMuch,
     this.repeatRule,
     this.category,
+    this.projectId,
     List<int>? repeatWeekdays,
     this.repeatSourceId,
   }) : repeatWeekdays = repeatWeekdays ?? [];
