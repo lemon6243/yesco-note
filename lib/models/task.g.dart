@@ -34,6 +34,7 @@ class TaskAdapter extends TypeAdapter<Task> {
       howMuch: fields[14] as String?,
       repeatRule: fields[15] as String?,
       category: fields[18] as String?,
+      projectId: fields[19] as String?,
       repeatWeekdays: (fields[16] as List?)?.cast<int>(),
       repeatSourceId: fields[17] as String?,
     );
@@ -42,7 +43,7 @@ class TaskAdapter extends TypeAdapter<Task> {
   @override
   void write(BinaryWriter writer, Task obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -80,7 +81,9 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(17)
       ..write(obj.repeatSourceId)
       ..writeByte(18)
-      ..write(obj.category);
+      ..write(obj.category)
+      ..writeByte(19)
+      ..write(obj.projectId);
   }
 
   @override
