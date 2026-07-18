@@ -291,8 +291,7 @@ class ProjectListScreen extends StatelessWidget {
                   selected: selectedColor,
                   onSelect: (value) => setState(() => selectedColor = value),
                 ),
-              ],
-                              const SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   '기간 (선택)',
                   style: TextStyle(
@@ -313,9 +312,10 @@ class ProjectListScreen extends StatelessWidget {
                   value: dueDate,
                   onPick: (d) => setState(() => dueDate = d),
                 ),
-
+              ],
             ),
           ),
+
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
@@ -439,7 +439,6 @@ class ProjectListScreen extends StatelessWidget {
                   selected: selectedColor,
                   onSelect: (value) => setState(() => selectedColor = value),
                 ),
-              ],
                 const SizedBox(height: 16),
                 Text(
                   '기간 (선택)',
@@ -461,7 +460,7 @@ class ProjectListScreen extends StatelessWidget {
                   value: dueDate,
                   onPick: (d) => setState(() => dueDate = d),
                 ),
-
+              ],
             ),
           ),
           actions: [
