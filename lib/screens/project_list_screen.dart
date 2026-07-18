@@ -189,6 +189,58 @@ class ProjectListScreen extends StatelessWidget {
     );
   }
 
+  
+  // 날짜 선택 행 (시작일/마감일 공용). 값이 없으면 "선택 안 함" 표시.
+  Widget _buildDateRow({
+    required BuildContext context,
+    required String label,
+    required DateTime? value,
+    required void Function(DateTime?) onPick,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 52,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).disabledColor,
+            ),
+          ),
+        ),
+        Expanded(
+          child: OutlinedButton(
+            onPressed: () async {
+              final now = DateTime.now();
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: value ?? now,
+                firstDate: DateTime(now.year - 2),
+                lastDate: DateTime(now.year + 5),
+              );
+              if (picked != null) onPick(picked);
+            },
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value == null
+                    ? '선택 안 함'
+                    : '${value.year}.${value.month}.${value.day}',
+              ),
+            ),
+          ),
+        ),
+        if (value != null)
+          IconButton(
+            icon: const Icon(Icons.clear, size: 18),
+            onPressed: () => onPick(null),
+            tooltip: '날짜 지우기',
+          ),
+      ],
+    );
+  }
+  
   // 새 프로젝트 추가 다이얼로그
   Future<void> _showAddProjectDialog(
     BuildContext context,
@@ -197,6 +249,9 @@ class ProjectListScreen extends StatelessWidget {
     final nameController = TextEditingController();
     final descController = TextEditingController();
     int selectedColor = _colorOptions.first;
+    DateTime? startDate;
+    DateTime? dueDate;
+
 
     await showDialog(
       context: context,
@@ -254,6 +309,9 @@ class ProjectListScreen extends StatelessWidget {
                       ? null
                       : descController.text.trim(),
                   colorValue: selectedColor,
+                  startDate: startDate,
+                  dueDate: dueDate,
+
                 );
                 Navigator.pop(ctx);
               },
@@ -322,6 +380,9 @@ class ProjectListScreen extends StatelessWidget {
     final descController =
         TextEditingController(text: project.description ?? '');
     int selectedColor = project.colorValue;
+    DateTime? startDate = project.startDate;
+    DateTime? dueDate = project.dueDate;
+
 
     await showDialog(
       context: context,
@@ -374,6 +435,8 @@ class ProjectListScreen extends StatelessWidget {
                         ? null
                         : descController.text.trim();
                 project.colorValue = selectedColor;
+                project.startDate = startDate;
+                project.dueDate = dueDate;
                 appState.updateProject(project);
                 Navigator.pop(ctx);
               },
