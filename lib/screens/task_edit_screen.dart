@@ -33,6 +33,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   bool _isUrgent = false;
   String? _location; // 장소: 'home'(집) / 'outside'(외부) / null(미지정)
   String? _category; // 카테고리: 'work'(업무)/'side'(부업)/'private'(개인)/'invest'(투자)/null
+  String? _projectId; // 이 할 일이 속한 프로젝트 id (null = 미분류)
+
 
   // ▼ 반복 설정
   String? _repeatRule; // null(반복 없음) / 'daily'(매일) / 'weekly'(매주)
@@ -56,6 +58,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       _isUrgent = task.isUrgent;
       _location = task.location;
       _category = task.category;
+      _projectId = task.projectId;
       _repeatRule = task.repeatRule;
       _repeatWeekdays
         ..clear()
@@ -224,6 +227,77 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ),
               ],
             ),
+            
+            const SizedBox(height: 24),
+            const Text(
+              '프로젝트',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            Builder(
+              builder: (context) {
+                final projects = context.read<AppState>().activeProjects;
+                if (projects.isEmpty) {
+                  return Text(
+                    '아직 프로젝트가 없어요. 오른쪽 위 폴더 아이콘에서 만들 수 있어요.',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: Colors.grey.withValues(alpha: 0.9),
+                    ),
+                  );
+                }
+                // 저장된 projectId가 현재 프로젝트 목록에 없으면(삭제됨 등) null 처리
+                final validValue =
+                    projects.any((p) => p.id == _projectId) ? _projectId : null;
+                return Card(
+                  margin: EdgeInsets.zero,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String?>(
+                        isExpanded: true,
+                        value: validValue,
+                        hint: const Text('프로젝트 없음'),
+                        items: [
+                          const DropdownMenuItem<String?>(
+                            value: null,
+                            child: Text('프로젝트 없음'),
+                          ),
+                          ...projects.map(
+                            (p) => DropdownMenuItem<String?>(
+                              value: p.id,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: Color(p.colorValue),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      p.name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                        onChanged: (value) =>
+                            setState(() => _projectId = value),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
 
                         // ▼ 반복 설정 UI
             const SizedBox(height: 24),
