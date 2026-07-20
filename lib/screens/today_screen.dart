@@ -114,25 +114,17 @@ class TodayScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.bar_chart_rounded,
-                              color: Colors.white, 
-                              size: 24
+                            IconButton(
+                              icon: const Icon(
+                                Icons.chevron_right,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              onPressed: appState.goToNextDay,
                             ),
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const DashboardScreen()),
-                            ),
-                          ),
-                          // 화면 오른쪽 위에 겹쳐 뜨는 '검색·다크모드' 버튼과
-                          // 자리가 겹치지 않도록 그만큼 빈 공간을 둡니다.
-                          const SizedBox(width: 132),
-                        ],
-                      ),
-                    ],
-                  ),
+                          ],
+                        ),
+
                   const SizedBox(height: 14),
                   _buildTop3Card(context, appState),
                 ],
