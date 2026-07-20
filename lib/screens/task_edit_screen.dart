@@ -16,8 +16,15 @@ import '../theme/app_theme.dart';
 class TaskEditScreen extends StatefulWidget {
   final Task? existingTask; // 수정할 할 일 (없으면 새로 추가)
   final DateTime? initialDate; // 새로 추가할 때 기본으로 들어갈 날짜
+  final String? initialProjectId; // 새로 추가할 때 미리 연결할 프로젝트 id
 
-  const TaskEditScreen({super.key, this.existingTask, this.initialDate});
+  const TaskEditScreen({
+    super.key,
+    this.existingTask,
+    this.initialDate,
+    this.initialProjectId,
+  });
+
 
   @override
   State<TaskEditScreen> createState() => _TaskEditScreenState();
@@ -70,9 +77,13 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       if (task.startTime != null) {
         _startTime = TimeOfDay.fromDateTime(task.startTime!);
       }
-    } else if (widget.initialDate != null) {
-      _date = widget.initialDate!;
+    } else {
+      if (widget.initialDate != null) {
+        _date = widget.initialDate!;
+      }
+      _projectId = widget.initialProjectId;
     }
+
   }
 
   @override
