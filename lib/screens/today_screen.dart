@@ -91,9 +91,7 @@ class TodayScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                                            Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
+                                           
                           IconButton(
                             icon: const Icon(
                               Icons.chevron_right,
