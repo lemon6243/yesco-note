@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_state.dart';
 import '../models/project.dart';
+import 'project_timeline_screen.dart';
+
 
 class ProjectListScreen extends StatelessWidget {
   const ProjectListScreen({super.key});
@@ -26,7 +28,23 @@ class ProjectListScreen extends StatelessWidget {
     final projects = appState.allProjects;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('프로젝트'), centerTitle: true),
+        appBar: AppBar(
+        title: const Text('프로젝트'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.timeline),
+            tooltip: '타임라인 보기',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ProjectTimelineScreen(),
+              ),
+            ),
+          ),
+        ],
+      ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddProjectDialog(context, appState),
         child: const Icon(Icons.add),
