@@ -1,9 +1,8 @@
 // ============================================================
 // MainNavigation (하단 탭 네비게이션)
 // ------------------------------------------------------------
-// 앱의 4가지 주요 화면(오늘/매트릭스/노트/회고)을 하단 탭으로
-// 전환할 수 있게 해주는 뼈대 화면입니다.
-// 오른쪽 위에는 검색과 다크모드 전환 버튼을 둡니다.
+// 앱의 주요 화면들을 하단 탭으로 전환하는 뼈대 화면입니다.
+// 오른쪽 위에 캘린더·프로젝트·검색·다크모드·성장캐릭터 버튼을 둡니다.
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -19,7 +18,6 @@ import 'search_screen.dart';
 import 'project_list_screen.dart';
 import 'calendar_screen.dart';
 import 'dashboard_screen.dart';
-
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -49,7 +47,7 @@ class _MainNavigationState extends State<MainNavigation> {
       body: Stack(
         children: [
           IndexedStack(index: _currentIndex, children: _screens),
-          // 검색 / 다크모드 버튼을 오른쪽 위에 겹쳐서 표시
+          // 상단 우측 버튼들 (겹쳐서 표시)
           Positioned(
             top: 8,
             right: 8,
@@ -101,7 +99,10 @@ class _MainNavigationState extends State<MainNavigation> {
                   ),
                 ],
               ),
-
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
@@ -141,13 +142,15 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  // 검색/다크모드용 원형 아이콘 버튼 (배경에 살짝 반투명한 원)
+  // 원형 아이콘 버튼 (배경에 살짝 반투명한 원)
   Widget _circleIconButton({
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    final isTodayTab = _currentIndex == 0; // 오늘 화면은 헤더가 그라디언트라 버튼 배경을 조정
+    final isTodayTab = _currentIndex == 0; // 오늘 탭은 헤더가 그라디언트라 버튼 배경 조정
     return Container(
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
         color: isTodayTab
             ? Colors.white.withValues(alpha: 0.25)
@@ -155,12 +158,7 @@ class _MainNavigationState extends State<MainNavigation> {
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: isTodayTab ? Colors.white : null, size: 20),
-        onPressed: onTap,
-      ),
-    );
-  }
-                  child: IconButton(
+        padding: EdgeInsets.zero,
         icon: Icon(icon, color: isTodayTab ? Colors.white : null, size: 20),
         onPressed: onTap,
       ),
@@ -197,4 +195,3 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 }
-
