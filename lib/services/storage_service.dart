@@ -30,6 +30,7 @@ class StorageService {
   late Box<Reflection> reflectionBox;
   late Box<Habit> habitBox;
   late Box<MorningSession> morningSessionBox;
+  late Box<Project> projectBox;
 
   // 앱이 시작될 때 한 번 호출해서 Hive를 준비시킵니다.
   Future<void> init() async {
