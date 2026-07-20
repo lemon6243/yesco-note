@@ -90,38 +90,17 @@ class TodayScreen extends StatelessWidget {
                         ),
                       ),
                                            
-                          IconButton(
-                            icon: const Icon(
-                              Icons.chevron_right,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                            onPressed: appState.goToNextDay,
-                          ),
-                                                    // 월간 캘린더 열기 (전체 일정을 한눈에 보고 날짜 점프)
-                          IconButton(
-                            icon: const Icon(
-                              Icons.calendar_month,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const CalendarScreen(),
-                              ),
-                            ),
-                          ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.chevron_right,
-                                color: Colors.white,
-                                size: 28,
-                              ),
-                              onPressed: appState.goToNextDay,
-                            ),
-                          ],
+                      IconButton(
+                        icon: const Icon(
+                          Icons.chevron_right,
+                          color: Colors.white,
+                          size: 28,
                         ),
+                        onPressed: appState.goToNextDay,
+                      ),
+                    ],
+                  ),
+
 
                   const SizedBox(height: 14),
                   _buildTop3Card(context, appState),
