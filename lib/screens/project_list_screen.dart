@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import '../services/app_state.dart';
 import '../models/project.dart';
 import 'project_timeline_screen.dart';
+import 'project_detail_screen.dart';
 
 
 class ProjectListScreen extends StatelessWidget {
@@ -97,7 +98,14 @@ class ProjectListScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProjectDetailScreen(projectId: project.id),
+          ),
+        ),
         onLongPress: () => _showProjectMenu(context, appState, project),
+
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Column(
