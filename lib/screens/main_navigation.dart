@@ -17,6 +17,8 @@ import 'reflection_screen.dart';
 import 'habits_screen.dart';
 import 'search_screen.dart';
 import 'project_list_screen.dart';
+import 'calendar_screen.dart';
+import 'dashboard_screen.dart';
 
 
 class MainNavigation extends StatefulWidget {
@@ -55,13 +57,13 @@ class _MainNavigationState extends State<MainNavigation> {
               child: Row(
                 children: [
                   _circleIconButton(
-                    icon: Icons.search_rounded,
+                    icon: Icons.calendar_month,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const SearchScreen()),
+                      MaterialPageRoute(builder: (_) => const CalendarScreen()),
                     ),
                   ),
-                 const SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   _circleIconButton(
                     icon: Icons.folder_outlined,
                     onTap: () => Navigator.push(
@@ -71,7 +73,14 @@ class _MainNavigationState extends State<MainNavigation> {
                       ),
                     ),
                   ),
-
+                  const SizedBox(width: 6),
+                  _circleIconButton(
+                    icon: Icons.search_rounded,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SearchScreen()),
+                    ),
+                  ),
                   const SizedBox(width: 6),
                   _circleIconButton(
                     icon: appState.isDarkMode
@@ -79,12 +88,20 @@ class _MainNavigationState extends State<MainNavigation> {
                         : Icons.dark_mode_rounded,
                     onTap: () => appState.toggleDarkMode(),
                   ),
+                  const SizedBox(width: 6),
+                  // 성장 캐릭터: 눌러서 통계 대시보드로 이동
+                  _circleImageButton(
+                    imagePath: appState.growthImagePath,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DashboardScreen(),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
+
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
@@ -143,4 +160,41 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
     );
   }
+                  child: IconButton(
+        icon: Icon(icon, color: isTodayTab ? Colors.white : null, size: 20),
+        onPressed: onTap,
+      ),
+    );
+  }
+
+  // 성장 캐릭터용 원형 버튼 (아이콘 대신 이미지를 원 안에 표시)
+  Widget _circleImageButton({
+    required String imagePath,
+    required VoidCallback onTap,
+  }) {
+    final isTodayTab = _currentIndex == 0;
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: isTodayTab
+            ? Colors.white.withValues(alpha: 0.25)
+            : Colors.black.withValues(alpha: 0.05),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: ClipOval(
+          child: Image.asset(
+            imagePath,
+            width: 26,
+            height: 26,
+            fit: BoxFit.cover,
+          ),
+        ),
+        onPressed: onTap,
+      ),
+    );
+  }
 }
+
