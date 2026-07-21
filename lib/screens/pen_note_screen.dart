@@ -59,7 +59,7 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
     }
     final appState = context.read<AppState>();
     final content = text.isEmpty ? '(손그림 노트)' : text;
-    final strokesJson = encodeStrokes(_strokes);
+    final strokesJson = encodeStrokes(_strokes) ?? '[]';
 
     if (_isEditing) {
       // 편집: 기존 노트 갱신
