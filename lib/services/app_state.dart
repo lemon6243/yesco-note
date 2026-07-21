@@ -326,15 +326,19 @@ class AppState extends ChangeNotifier {
 
   List<Note> get allNotes => storage.getAllNotes();
 
-  Future<void> addNote(String content) async {
+  // 노트 추가. 텍스트만, 그림만, 또는 둘 다 저장 가능.
+  // penStrokesJson은 drawn_stroke.dart의 encodeStrokes() 결과(JSON 문자열).
+  Future<void> addNote(String content, {String? penStrokesJson}) async {
     final note = Note(
       id: _uuid.v4(),
       content: content,
       createdAt: DateTime.now(),
+      penStrokes: penStrokesJson,
     );
     await storage.saveNote(note);
     notifyListeners();
   }
+
 
   Future<void> archiveNote(Note note) async {
     note.status = NoteStatus.archived;

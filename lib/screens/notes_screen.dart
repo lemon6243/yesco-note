@@ -3,7 +3,7 @@
 // ------------------------------------------------------------
 // "빈 종이" 방식: 유도 질문 없이 위쪽 입력창에 자유롭게 적으면
 // 아래에 카드로 쌓입니다. 각 카드는 '할 일로 전환' / '아이디어 보관' /
-// '삭제' 액션을 가집니다.
+// '삭제' 액션을 가집니다. 손그림 노트도 추가할 수 있습니다.
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -11,7 +11,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../services/app_state.dart';
 import '../models/note.dart';
+import '../models/drawn_stroke.dart';
 import '../theme/app_theme.dart';
+import '../widgets/pen_canvas.dart';
+import 'pen_note_screen.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -57,12 +60,23 @@ class _NotesScreenState extends State<NotesScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  // 텍스트 노트 추가 버튼
                   IconButton.filled(
                     style: IconButton.styleFrom(
                       backgroundColor: AppColors.coral,
                     ),
                     icon: const Icon(Icons.arrow_upward_rounded),
                     onPressed: () => _handleAdd(appState),
+                  ),
+                  const SizedBox(width: 8),
+                  // 손그림 노트 진입 버튼
+                  IconButton.filledTonal(
+                    icon: const Icon(Icons.draw_outlined),
+                    tooltip: '손그림 노트',
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PenNoteScreen()),
+                    ),
                   ),
                 ],
               ),
@@ -152,6 +166,23 @@ class _NotesScreenState extends State<NotesScreen> {
             ),
             const SizedBox(height: 8),
             Text(note.content, style: const TextStyle(fontSize: 14.5)),
+            // 손그림이 있으면 미리보기 표시
+            if (note.penStrokes != null) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  height: 140,
+                  width: double.infinity,
+                  color: Colors.white,
+                  child: CustomPaint(
+                    painter: StrokePreviewPainter(
+                      decodeStrokes(note.penStrokes),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             if (note.status == NoteStatus.unclassified) ...[
               const SizedBox(height: 10),
               Row(

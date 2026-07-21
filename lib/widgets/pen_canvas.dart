@@ -236,3 +236,32 @@ class _CanvasPainter extends CustomPainter {
   @override
   bool shouldRepaint(_CanvasPainter old) => true;
 }
+
+
+  // 저장된 그림을 읽기 전용으로 보여주는 미리보기 페인터
+  class StrokePreviewPainter extends CustomPainter {
+    final List<DrawnStroke> strokes;
+    StrokePreviewPainter(this.strokes);
+  
+    @override
+    void paint(Canvas canvas, Size size) {
+      for (final s in strokes) {
+        if (s.points.length < 2) continue;
+        final paint = Paint()
+          ..color = s.color
+          ..strokeWidth = s.width
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
+          ..style = PaintingStyle.stroke;
+        final path = Path()..moveTo(s.points.first.x, s.points.first.y);
+        for (int i = 1; i < s.points.length; i++) {
+          path.lineTo(s.points[i].x, s.points[i].y);
+        }
+        canvas.drawPath(path, paint);
+      }
+    }
+  
+    @override
+    bool shouldRepaint(StrokePreviewPainter old) => true;
+}
+
