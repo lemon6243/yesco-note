@@ -346,9 +346,10 @@ class AppState extends ChangeNotifier {
   ) async {
     note.content = content;
     note.penStrokes = penStrokesJson;
-    await note.save();      // HiveObject.save()
+    await storage.saveNote(note);   // 다른 노트 함수들과 동일하게 통일
     notifyListeners();
   }
+
 
 
 
