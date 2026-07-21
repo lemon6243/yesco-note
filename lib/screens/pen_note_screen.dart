@@ -71,9 +71,13 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
                   hintText: '메모(선택) — 그림에 대한 설명을 적어도 됩니다',
                 ),
               ),
-              const SizedBox(height: 12),            
-                  height: double.infinity,
-                  
+              const SizedBox(height: 12),
+              // 캔버스 (남은 공간 전부 사용)
+              Expanded(
+                child: PenCanvas(
+                  onChanged: (strokes) => _strokes = strokes,
+                ),
+              ),
             ],
           ),
         ),
