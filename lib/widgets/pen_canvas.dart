@@ -159,27 +159,30 @@ class _PenCanvasState extends State<PenCanvas> {
           ],
         ),
         // ---- 그리는 영역 ----
-        Container(
-          height: widget.height,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.4)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Listener(
-            onPointerDown: (e) => _startStroke(e.localPosition),
-            onPointerMove: (e) => _appendPoint(e.localPosition),
-            onPointerUp: (e) => _endStroke(),
-            child: CustomPaint(
-              painter: _CanvasPainter(
-                strokes: _strokes,
-                currentPoints: _currentPoints,
-                currentColor: _eraserMode ? Colors.white : _selectedColor,
-                currentWidth:
-                    _eraserMode ? _selectedWidth * 4 : _selectedWidth,
+                // ---- 그리는 영역 ----
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.4)),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Listener(
+              onPointerDown: (e) => _startStroke(e.localPosition),
+              onPointerMove: (e) => _appendPoint(e.localPosition),
+              onPointerUp: (e) => _endStroke(),
+              child: CustomPaint(
+                painter: _CanvasPainter(
+                  strokes: _strokes,
+                  currentPoints: _currentPoints,
+                  currentColor: _eraserMode ? Colors.white : _selectedColor,
+                  currentWidth:
+                      _eraserMode ? _selectedWidth * 4 : _selectedWidth,
+                ),
+                size: Size.infinite,
               ),
-              size: Size.infinite,
             ),
           ),
         ),
