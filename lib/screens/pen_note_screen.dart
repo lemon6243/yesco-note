@@ -12,15 +12,30 @@ import '../models/drawn_stroke.dart';
 import '../widgets/pen_canvas.dart';
 
 class PenNoteScreen extends StatefulWidget {
-  const PenNoteScreen({super.key});
+  final Note? note;   // 편집할 노트 (null이면 새 노트)
+  const PenNoteScreen({super.key, this.note});
 
   @override
   State<PenNoteScreen> createState() => _PenNoteScreenState();
 }
 
 class _PenNoteScreenState extends State<PenNoteScreen> {
-  List<DrawnStroke> _strokes = [];
-  final _textController = TextEditingController();
+  late List<DrawnStroke> _strokes;
+  late final TextEditingController _textController;
+
+  @override
+  void initState() {
+    super.initState();
+    // 편집이면 기존 획/텍스트를 불러옴
+    _strokes = widget.note?.penStrokes != null
+        ? decodeStrokes(widget.note!.penStrokes)
+        : [];
+    _textController = TextEditingController(
+      text: (widget.note?.content == '(손그림 노트)')
+          ? ''
+          : (widget.note?.content ?? ''),
+    );
+  }
 
   @override
   void dispose() {
@@ -30,7 +45,6 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
 
   Future<void> _save() async {
     final text = _textController.text.trim();
-    // 그림도 없고 글자도 없으면 저장하지 않음
     if (_strokes.isEmpty && text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('그림을 그리거나 내용을 적어주세요.')),
@@ -38,10 +52,16 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
       return;
     }
     final appState = context.read<AppState>();
-    await appState.addNote(
-      text.isEmpty ? '(손그림 노트)' : text,
-      penStrokesJson: encodeStrokes(_strokes),
-    );
+    final content = text.isEmpty ? '(손그림 노트)' : text;
+    final strokesJson = encodeStrokes(_strokes);
+
+    if (widget.note != null) {
+      // 편집: 기존 노트 갱신
+      await appState.updateNotePen(widget.note!, content, strokesJson);
+    } else {
+      // 신규
+      await appState.addNote(content, penStrokesJson: strokesJson);
+    }
     if (mounted) Navigator.pop(context);
   }
 
