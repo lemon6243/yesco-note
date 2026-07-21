@@ -66,7 +66,7 @@ class _PenCanvasState extends State<PenCanvas> {
     if (_currentPoints.length > 1) {
       _strokes.add(DrawnStroke(
         points: List<StrokePoint>.from(_currentPoints),
-        colorValue: (_eraserMode ? Colors.white : _selectedColor).value,
+        colorValue: (_eraserMode ? Colors.white : _selectedColor).toARGB32(),
         width: _eraserMode ? _selectedWidth * 4 : _selectedWidth,
       ));
       _notify();
