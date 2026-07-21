@@ -128,6 +128,8 @@ class _NotesScreenState extends State<NotesScreen> {
         statusLabel = '미분류';
     }
 
+    final bool hasPen = note.penStrokes != null;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -166,21 +168,54 @@ class _NotesScreenState extends State<NotesScreen> {
             ),
             const SizedBox(height: 8),
             Text(note.content, style: const TextStyle(fontSize: 14.5)),
-            // 손그림이 있으면 미리보기 표시
-            if (note.penStrokes != null) ...[
+            // 손그림이 있으면 미리보기 표시 (탭하면 편집)
+            if (hasPen) ...[
               const SizedBox(height: 10),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  height: 140,
-                  width: double.infinity,
-                  color: Colors.white,
-                  child: CustomPaint(
-                    painter: StrokePreviewPainter(
-                      decodeStrokes(note.penStrokes),
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PenNoteScreen(note: note),
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    height: 140,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.grey.withValues(alpha: 0.3),
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: CustomPaint(
+                      painter: StrokePreviewPainter(
+                        decodeStrokes(note.penStrokes),
+                      ),
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(
+                    Icons.touch_app_outlined,
+                    size: 13,
+                    color: Colors.grey.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    '탭하여 수정',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
               ),
             ],
             if (note.status == NoteStatus.unclassified) ...[
