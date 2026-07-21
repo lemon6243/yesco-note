@@ -339,6 +339,18 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateNotePen(
+    Note note,
+    String content,
+    String penStrokesJson,
+  ) async {
+    note.content = content;
+    note.penStrokes = penStrokesJson;
+    await note.save();      // HiveObject.save()
+    notifyListeners();
+  }
+
+
 
   Future<void> archiveNote(Note note) async {
     note.status = NoteStatus.archived;
