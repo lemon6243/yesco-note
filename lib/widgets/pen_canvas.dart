@@ -242,29 +242,64 @@ class _CanvasPainter extends CustomPainter {
 
 
   // 저장된 그림을 읽기 전용으로 보여주는 미리보기 페인터
-  class StrokePreviewPainter extends CustomPainter {
-    final List<DrawnStroke> strokes;
-    StrokePreviewPainter(this.strokes);
-  
-    @override
-    void paint(Canvas canvas, Size size) {
-      for (final s in strokes) {
-        if (s.points.length < 2) continue;
-        final paint = Paint()
-          ..color = s.color
-          ..strokeWidth = s.width
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..style = PaintingStyle.stroke;
-        final path = Path()..moveTo(s.points.first.x, s.points.first.y);
-        for (int i = 1; i < s.points.length; i++) {
-          path.lineTo(s.points[i].x, s.points[i].y);
-        }
-        canvas.drawPath(path, paint);
+class StrokePreviewPainter extends CustomPainter {
+  final List<DrawnStroke> strokes;
+  StrokePreviewPainter(this.strokes);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (strokes.isEmpty) return;
+
+    // 1) 전체 획의 경계 계산
+    double minX = double.infinity, minY = double.infinity;
+    double maxX = -double.infinity, maxY = -double.infinity;
+    for (final s in strokes) {
+      for (final p in s.points) {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
       }
     }
-  
-    @override
-    bool shouldRepaint(StrokePreviewPainter old) => true;
+    final contentW = (maxX - minX).clamp(1.0, double.infinity);
+    final contentH = (maxY - minY).clamp(1.0, double.infinity);
+
+    // 2) 박스에 맞는 축소 배율 (여백 8px, 확대는 안 함)
+    const pad = 8.0;
+    final scale = ((size.width - pad * 2) / contentW)
+        .clamp(0.0, 1.0)
+        .compareTo((size.height - pad * 2) / contentH) <= 0
+        ? (size.width - pad * 2) / contentW
+        : (size.height - pad * 2) / contentH;
+    final s = scale.clamp(0.0, 1.0);
+
+    // 3) 중앙 정렬 오프셋
+    final dx = (size.width - contentW * s) / 2 - minX * s;
+    final dy = (size.height - contentH * s) / 2 - minY * s;
+
+    canvas.save();
+    canvas.translate(dx, dy);
+    canvas.scale(s);
+
+    for (final stroke in strokes) {
+      if (stroke.points.length < 2) continue;
+      final paint = Paint()
+        ..color = stroke.color
+        ..strokeWidth = stroke.width
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke;
+      final path = Path()
+        ..moveTo(stroke.points.first.x, stroke.points.first.y);
+      for (int i = 1; i < stroke.points.length; i++) {
+        path.lineTo(stroke.points[i].x, stroke.points[i].y);
+      }
+      canvas.drawPath(path, paint);
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(StrokePreviewPainter old) => true;
 }
 
