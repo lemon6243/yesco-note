@@ -2,8 +2,7 @@
 // ProjectTimelineScreen (프로젝트 타임라인 / 간트 뷰)
 // ------------------------------------------------------------
 // 기간(시작일~마감일)이 설정된 프로젝트들을 가로 막대(간트)로
-// 보여줍니다. 하루 = 약 20픽셀 폭으로 그리고, 가로 스크롤로
-// 넘겨 봅니다. 막대 위에는 진행률을 겹쳐 표시합니다.
+// 보여줍니다. 상단 +/- 버튼으로 확대/축소할 수 있습니다.
 // 막대를 탭하면 기간 수정 / 프로젝트 열기를 고를 수 있습니다.
 // 기간이 없는 프로젝트는 아래쪽에 "기간 미설정"으로 따로 나열합니다.
 // ============================================================
@@ -15,16 +14,48 @@ import '../services/app_state.dart';
 import '../models/project.dart';
 import 'project_detail_screen.dart';
 
-class ProjectTimelineScreen extends StatelessWidget {
+class ProjectTimelineScreen extends StatefulWidget {
   const ProjectTimelineScreen({super.key});
 
-  static const double _dayWidth = 20; // 하루당 가로 픽셀
+  @override
+  State<ProjectTimelineScreen> createState() => _ProjectTimelineScreenState();
+}
+
+class _ProjectTimelineScreenState extends State<ProjectTimelineScreen> {
   static const double _rowHeight = 44; // 프로젝트 한 줄 높이
   static const double _labelWidth = 110; // 왼쪽 프로젝트 이름 칸 너비
   static const double _headerHeight = 36; // 상단 날짜 눈금 높이
 
+  // 하루당 가로 픽셀 — 줌으로 바뀌는 상태 변수
+  double _dayWidth = 20;
+
+  // 줌 한계·단계
+  static const double _minDayWidth = 8;
+  static const double _maxDayWidth = 48;
+  static const double _zoomStep = 6;
+
+  void _zoomIn() {
+    setState(() {
+      _dayWidth = (_dayWidth + _zoomStep).clamp(_minDayWidth, _maxDayWidth);
+    });
+  }
+
+  void _zoomOut() {
+    setState(() {
+      _dayWidth = (_dayWidth - _zoomStep).clamp(_minDayWidth, _maxDayWidth);
+    });
+  }
+
   // 날짜의 시:분:초를 버리고 날짜만 남깁니다.
   DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  // 현재 줌에 맞는 날짜 라벨 간격(일). 칸이 좁을수록 라벨을 띄엄띄엄.
+  int get _labelInterval {
+    if (_dayWidth >= 32) return 3;
+    if (_dayWidth >= 20) return 7;
+    if (_dayWidth >= 12) return 14;
+    return 30;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +73,22 @@ class ProjectTimelineScreen extends StatelessWidget {
     final undated = all.where((p) => !dated.contains(p)).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('프로젝트 타임라인'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('프로젝트 타임라인'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.zoom_out),
+            tooltip: '축소',
+            onPressed: _dayWidth <= _minDayWidth ? null : _zoomOut,
+          ),
+          IconButton(
+            icon: const Icon(Icons.zoom_in),
+            tooltip: '확대',
+            onPressed: _dayWidth >= _maxDayWidth ? null : _zoomIn,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: all.isEmpty
             ? _emptyMessage(context, '아직 프로젝트가 없어요.')
@@ -133,7 +179,7 @@ class ProjectTimelineScreen extends StatelessWidget {
     );
   }
 
-  // 상단 날짜 눈금 (7일마다 날짜 라벨)
+  // 상단 날짜 눈금 (줌에 따라 라벨 간격 자동 조정)
   Widget _buildDateHeader(
     BuildContext context,
     DateTime rangeStart,
@@ -142,8 +188,8 @@ class ProjectTimelineScreen extends StatelessWidget {
     final marks = <Widget>[];
     for (int i = 0; i < totalDays; i++) {
       final date = rangeStart.add(Duration(days: i));
-      // 7일 간격 또는 매월 1일에 라벨 표시
-      final showLabel = i % 7 == 0 || date.day == 1;
+      // 줌 레벨에 맞는 간격마다 또는 매월 1일에 라벨 표시
+      final showLabel = i % _labelInterval == 0 || date.day == 1;
       marks.add(
         SizedBox(
           width: _dayWidth,
