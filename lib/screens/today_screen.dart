@@ -52,54 +52,56 @@ class TodayScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.chevron_left,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                        onPressed: appState.goToPreviousDay,
+                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.chevron_left,
+                        color: Colors.white,
+                        size: 28,
                       ),
-                      GestureDetector(
-                        onTap: appState.goToToday,
-                        child: Column(
-                          children: [
-                            Text(
-                              dateFormat.format(selectedDate),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      onPressed: appState.goToPreviousDay,
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: appState.goToToday,
+                      child: Column(
+                        children: [
+                          Text(
+                            dateFormat.format(selectedDate),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
                             ),
-                            if (!isToday)
-                              const Padding(
-                                padding: EdgeInsets.only(top: 2),
-                                child: Text(
-                                  '탭하여 오늘로 돌아가기',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 11,
-                                  ),
+                          ),
+                          if (!isToday)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child: Text(
+                                '탭하여 오늘로 돌아가기',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
                                 ),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
                       ),
-                                           
-                      IconButton(
-                        icon: const Icon(
-                          Icons.chevron_right,
-                          color: Colors.white,
-                          size: 28,
-                        ),
-                        onPressed: appState.goToNextDay,
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white,
+                        size: 28,
                       ),
-                    ],
-                  ),
+                      onPressed: appState.goToNextDay,
+                    ),
+                  ],
+                ),
+
 
 
                   const SizedBox(height: 14),
