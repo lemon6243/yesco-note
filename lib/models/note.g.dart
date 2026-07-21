@@ -24,13 +24,14 @@ class NoteAdapter extends TypeAdapter<Note> {
       penImagePath: fields[4] as String?,
       convertedText: fields[5] as String?,
       convertedTaskId: fields[6] as String?,
+      penStrokes: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Note obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class NoteAdapter extends TypeAdapter<Note> {
       ..writeByte(5)
       ..write(obj.convertedText)
       ..writeByte(6)
-      ..write(obj.convertedTaskId);
+      ..write(obj.convertedTaskId)
+      ..writeByte(7)
+      ..write(obj.penStrokes);
   }
 
   @override
