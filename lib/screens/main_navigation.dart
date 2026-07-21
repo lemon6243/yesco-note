@@ -54,6 +54,15 @@ class _MainNavigationState extends State<MainNavigation> {
             child: SafeArea(
               child: Row(
                 children: [
+                  // 성장 캐릭터: 맨 왼쪽 배치 (눌러서 통계 대시보드로 이동)
+                  _circleImageButton(
+                    imagePath: appState.growthImagePath,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
                   _circleIconButton(
                     icon: Icons.calendar_month,
                     onTap: () => Navigator.push(
@@ -66,9 +75,7 @@ class _MainNavigationState extends State<MainNavigation> {
                     icon: Icons.folder_outlined,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const ProjectListScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const ProjectListScreen()),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -85,17 +92,8 @@ class _MainNavigationState extends State<MainNavigation> {
                         ? Icons.light_mode_rounded
                         : Icons.dark_mode_rounded,
                     onTap: () => appState.toggleDarkMode(),
-                  ),
-                  const SizedBox(width: 6),
-                  // 성장 캐릭터: 눌러서 통계 대시보드로 이동
-                  _circleImageButton(
-                    imagePath: appState.growthImagePath,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const DashboardScreen(),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
