@@ -31,6 +31,8 @@ dependencies:
 
   # 월간 캘린더 위젯 (전체 일정을 한 달 단위로 보고 날짜 이동)
   table_calendar: ^3.1.2
+  
+  google_mlkit_digital_ink_recognition: any
 
 dev_dependencies:
   flutter_test:
