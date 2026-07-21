@@ -92,8 +92,6 @@ class _MainNavigationState extends State<MainNavigation> {
                         ? Icons.light_mode_rounded
                         : Icons.dark_mode_rounded,
                     onTap: () => appState.toggleDarkMode(),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -101,6 +99,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
         ],
       ),
+
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
