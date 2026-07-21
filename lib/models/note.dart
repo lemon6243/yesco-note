@@ -59,6 +59,14 @@ class Note extends HiveObject {
   @HiveField(6)
   String? convertedTaskId;
 
+  // ---- 펜 그림(획 좌표) 저장 ----
+  // 손으로 그린 획들을 JSON 문자열로 직렬화해서 저장합니다.
+  // (drawn_stroke.dart의 encodeStrokes/decodeStrokes로 변환)
+  // null이면 그림 없는 순수 텍스트 노트입니다.
+  @HiveField(7)
+  String? penStrokes;
+
+
   Note({
     required this.id,
     required this.content,
@@ -67,5 +75,6 @@ class Note extends HiveObject {
     this.penImagePath,
     this.convertedText,
     this.convertedTaskId,
+    this.penStrokes,
   });
 }
