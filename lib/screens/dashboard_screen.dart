@@ -12,6 +12,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/app_state.dart';
+import '../services/export_service.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -103,7 +104,46 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 12),
             _categoryCard(context, appState),
             const SizedBox(height: 16),
+            // [새로 추가할 부분 시작] ---- 데이터 내보내기 버튼 ----
+            const Divider(height: 48, thickness: 1), // 구분선
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.file_download_outlined),
+                label: const Text('모든 데이터 백업 (CSV 내보내기)'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () async {
+                  // 로딩 표시용 스낵바
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('데이터를 추출하는 중입니다...'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
 
+                  try {
+                    // ExportService를 호출하여 내보내기 실행
+                    final exportService = ExportService(appState.storage);
+                    await exportService.exportAllDataToCsv();
+                  } catch (e) {
+                    // 오류 발생 시 알림
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('내보내기 실패: $e')),
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
