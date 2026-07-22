@@ -19,6 +19,8 @@ import 'package:provider/provider.dart';
 import '../services/app_state.dart';
 import '../models/morning_session.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter/services.dart';
+
 
 class MorningScreen extends StatefulWidget {
   const MorningScreen({super.key});
@@ -62,7 +64,7 @@ class _MorningScreenState extends State<MorningScreen> {
     super.dispose();
   }
 
-    void _startPause() {
+   void _startPause() {
     if (_isRunning) {
       // 일시정지: 지금까지 흐른 시간을 누적값에 더해 저장하고 멈춤
       _accumulatedSeconds = _elapsedSeconds;
@@ -70,9 +72,22 @@ class _MorningScreenState extends State<MorningScreen> {
       _timer?.cancel();
       setState(() => _isRunning = false);
     } else {
+      // [추가된 변수] 이전에 이미 알림을 울렸는지 체크하여 중복 울림 방지
+      final wasAlreadyAchieved = _elapsedSeconds >= _targetSeconds;
+      
       // 시작(또는 이어서 시작): 시작 시각을 기록하고, 화면 갱신용 타이머를 돌림
       _startTime = DateTime.now();
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        
+        // [새로 추가된 목표 도달 알림 로직]
+        // 시작 당시에는 목표 미달이었으나, 지금 막 목표 시간에 도달한 순간을 포착!
+        if (!wasAlreadyAchieved && _elapsedSeconds == _targetSeconds) {
+          // 기기 진동 (안드로이드/iOS 기본 햅틱)
+          HapticFeedback.heavyImpact(); 
+          // 기기 기본 알림음 재생
+          SystemSound.play(SystemSoundType.alert);
+        }
+        
         // 시간 자체는 _startTime 기준으로 계산되므로, 여기선 화면만 다시 그림
         setState(() {});
       });
