@@ -98,73 +98,10 @@ class AppState extends ChangeNotifier {
   }
 
 
-  // ---------------- 초기 데이터 로드 + 미완료 이월 ----------------
-
-  // [수정된 부분] 반환형을 Future<void>에서 Future<int>로 변경하여 이월된 개수를 반환합니다.
-  Future<int> initializeAndCarryOverTasks() async {
-    final today = DateTime.now();
-    final todayOnly = DateTime(today.year, today.month, today.day);
-    int carriedCount = 0; // 이월된 개수를 셀 변수
-
-    // 오늘보다 이전 날짜이면서 아직 완료되지 않은 할 일들을 찾습니다.
-    final overdue = storage.getAllTasks().where((task) {
-      final taskDateOnly = DateTime(
-        task.date.year,
-        task.date.month,
-        task.date.day,
-      );
-      return taskDateOnly.isBefore(todayOnly) && !task.isDone;
-    }).toList();
-
-    for (final oldTask in overdue) {
-      // 이미 오늘 날짜로 같은 제목의 이월 항목이 있으면 중복 이월하지 않습니다.
-      final alreadyCarried = storage.getAllTasks().any(
-        (t) =>
-            t.carriedOverFromId == oldTask.id &&
-            t.date.year == todayOnly.year &&
-            t.date.month == todayOnly.month &&
-            t.date.day == todayOnly.day,
-      );
-      if (alreadyCarried) continue;
-
-      // 원본 할 일은 그대로 두고(과거 기록 보존), 오늘 날짜로 복사본을 새로 만듭니다.
-      final newTask = Task(
-        id: _uuid.v4(),
-        title: oldTask.title,
-        memo: oldTask.memo,
-        startTime: oldTask.startTime,
-        date: todayOnly, // 오늘 날짜로 변경
-        isImportant: oldTask.isImportant,
-        isUrgent: oldTask.isUrgent,
-        isTop3: oldTask.isTop3,
-        isDone: false, // 미완료 상태
-        createdAt: DateTime.now(),
-        carriedOverFromId: oldTask.id, // 원본 ID 기록
-        location: oldTask.location,
-        why: oldTask.why,
-        how: oldTask.how,
-        howMuch: oldTask.howMuch,
-        repeatRule: null, // 이월된 항목은 반복규칙 끊음
-        repeatWeekdays: [],
-        repeatSourceId: null,
-        category: oldTask.category,
-        projectId: oldTask.projectId,
-      );
-      
-      await storage.saveTask(newTask);
-      carriedCount++; // 이월 카운트 증가
-    }
-    
-    if (carriedCount > 0) {
-      notifyListeners();
-    }
-    
-    return carriedCount; // 최종적으로 이월된 개수를 반환
-  }
-
+  // ---------------- 초기 데이터 로드 + 미완료 이월 ---------------- 
 
   // ---------------- Task(할 일) 관련 ----------------
-    // ---------------- 반복 할 일 자동 생성 ----------------
+  // ---------------- 반복 할 일 자동 생성 ----------------
 
   // 앱을 시작할 때 호출합니다.
   // 반복 규칙이 있는 "원본 할 일"을 보고, 오늘 날짜에 해당하면
