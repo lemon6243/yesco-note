@@ -24,9 +24,11 @@ class HabitsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('습관 · 챌린지'), centerTitle: true),
       // 우측 하단 + 버튼: 새 습관 추가
       floatingActionButton: FloatingActionButton(
+        heroTag: 'habits_fab',
         onPressed: () => _showAddHabitDialog(context, appState),
         child: const Icon(Icons.add),
       ),
+
       body: SafeArea(
         child: habits.isEmpty
             // 습관이 하나도 없을 때 안내 문구
