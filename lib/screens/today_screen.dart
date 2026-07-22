@@ -121,6 +121,7 @@ class TodayScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'today_fab',
         onPressed: () => _openAddTask(context, appState.selectedDate),
         child: const Icon(Icons.add),
       ),
