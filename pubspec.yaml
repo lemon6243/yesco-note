@@ -19,7 +19,7 @@ dependencies:
   intl: ^0.20.2
   uuid: ^4.5.1
   table_calendar: ^3.1.2
-  google_mlkit_digital_ink_recognition: any
+  google_mlkit_digital_ink_recognition: ^0.13.0
 
   # 푸시 알림 및 시간 스케줄링
   flutter_local_notifications: ^17.1.2
