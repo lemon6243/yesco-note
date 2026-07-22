@@ -40,6 +40,34 @@ class _MainNavigationState extends State<MainNavigation> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // [추가된 부분] 화면 렌더링이 끝난 직후 콜백을 실행하여 이월 알림을 띄웁니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = context.read<AppState>();
+      final carriedCount = appState.justCarriedOverCount;
+      
+      if (carriedCount > 0 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('어제 끝내지 못한 할 일 $carriedCount개가 오늘로 이월되었습니다.'),
+            behavior: SnackBarBehavior.floating, // 화면 아래에 둥둥 뜨는 스타일
+            backgroundColor: Theme.of(context).colorScheme.primary, // 테마 색상 적용
+            duration: const Duration(seconds: 4), // 사용자가 읽을 수 있도록 4초간 유지
+            action: SnackBarAction(
+              label: '확인',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
+        );
+        // 알림을 띄웠으니 다시 안 뜨도록 리셋
+        appState.clearCarriedOverCount(); 
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
 
