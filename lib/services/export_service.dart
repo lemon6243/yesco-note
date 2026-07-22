@@ -57,17 +57,18 @@ class ExportService {
 
     // --- 습관(Habit) 데이터 ---
     rows.add(['--- 습관 (Habits) ---']);
-    rows.add(['습관명', '성격', '총 완료일수', '최근 기록일']);
+    rows.add(['습관명', '이모지', '총 완료일수', '최근 기록일']);   // '성격' 컬럼 제거
     for (var habit in habits) {
-      final dates = habit.completedDates.toList()..sort();
+      final dates = habit.checkedDates.toList()..sort();          // completedDates → checkedDates
       final lastDate = dates.isNotEmpty ? dates.last : '기록 없음';
       rows.add([
         habit.name,
-        habit.isGood ? '좋은 습관' : '나쁜 습관',
-        habit.completedDates.length,
+        habit.emoji,                                              // isGood 대신 emoji 사용
+        habit.checkedDates.length,                                // completedDates → checkedDates
         lastDate,
       ]);
     }
+
     rows.add([]);
 
     // --- 아침 세션(Morning Session) 데이터 ---
