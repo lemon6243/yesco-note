@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt; // <--- 추가
 import '../services/app_state.dart';
 import '../models/task.dart';
 import '../theme/app_theme.dart';
@@ -34,6 +35,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   final _titleController = TextEditingController();
   final _memoController = TextEditingController();
 
+  late TextEditingController _titleController;
+
   DateTime _date = DateTime.now();
   TimeOfDay? _startTime; // 시작 시간 (선택 사항)
   bool _isImportant = false;
@@ -53,9 +56,17 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
 
   bool get _isEditMode => widget.existingTask != null;
 
+  // [▼ 새로 추가할 부분] 음성 인식(STT) 관련 변수
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  // [▲ 새로 추가할 부분 끝]
+
   @override
   void initState() {
     super.initState();
+    // [▼ 새로 추가할 부분] STT 객체 초기화
+    _speech = stt.SpeechToText();
+    // [▲ 새로 추가할 부분 끝]
     final task = widget.existingTask;
     if (task != null) {
       _titleController.text = task.title;
@@ -86,6 +97,45 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
 
   }
 
+  // [추가할 변수들] 음성 인식 관련
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // ... 기존 initState 코드 유지 ...
+    
+    // [추가] STT 초기화
+    _speech = stt.SpeechToText();
+  }
+  
+  // [추가] 마이크 버튼을 눌렀을 때 실행될 함수
+  void _listen() async {
+    if (!_isListening) {
+      // 마이크 권한 요청 및 초기화
+      bool available = await _speech.initialize(
+        onStatus: (val) => debugPrint('onStatus: $val'),
+        onError: (val) => debugPrint('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        // 한국어('ko_KR')로 음성 인식 시작
+        _speech.listen(
+          localeId: 'ko_KR',
+          onResult: (val) => setState(() {
+            // 인식된 텍스트를 제목 입력창에 바로 꽂아줌
+            _titleController.text = val.recognizedWords;
+          }),
+        );
+      }
+    } else {
+      // 다시 누르면 인식 종료
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -95,6 +145,32 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     _howMuchController.dispose();
     super.dispose();
   }
+
+  // [▼ 새로 추가할 부분] 음성 듣기 시작/종료 함수
+  void _listen() async {
+    if (!_isListening) {
+      // 마이크 권한 허용 및 초기화 시도
+      bool available = await _speech.initialize(
+        onStatus: (val) => debugPrint('onStatus: $val'),
+        onError: (val) => debugPrint('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        // 한국어 인식 시작
+        _speech.listen(
+          localeId: 'ko_KR',
+          onResult: (val) => setState(() {
+            _titleController.text = val.recognizedWords; // 결과값을 제목 칸에 넣음
+          }),
+        );
+      }
+    } else {
+      // 이미 듣고 있는 중이면 중지
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
+  }
+  // [▲ 새로 추가할 부분 끝]
 
   @override
   Widget build(BuildContext context) {
@@ -113,15 +189,27 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // 제목 입력
+           // 제목 입력
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: '제목 *',
                 hintText: '무슨 일을 해야 하나요?',
+                // [▼ 새로 추가할 부분] 텍스트 필드 우측에 마이크 아이콘 달기
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isListening ? Icons.mic : Icons.mic_none, // 듣는 중에 아이콘 모양 변경
+                    color: _isListening ? Colors.red : Colors.grey, // 듣는 중에 빨간색으로 변경
+                  ),
+                  onPressed: _listen, // 누르면 아까 만든 _listen() 함수 실행
+                  tooltip: '음성으로 제목 입력',
+                ),
+                // [▲ 새로 추가할 부분 끝]
               ),
               autofocus: !_isEditMode,
             ),
+
+
             const SizedBox(height: 14),
             // 메모 입력
             TextField(
