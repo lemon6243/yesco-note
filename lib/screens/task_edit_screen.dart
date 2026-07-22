@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt; // <--- 추가
+import 'package:speech_to_text/speech_to_text.dart' as stt; // 음성 인식 패키지 추가
 import '../services/app_state.dart';
 import '../models/task.dart';
 import '../theme/app_theme.dart';
@@ -26,16 +26,14 @@ class TaskEditScreen extends StatefulWidget {
     this.initialProjectId,
   });
 
-
   @override
   State<TaskEditScreen> createState() => _TaskEditScreenState();
 }
 
 class _TaskEditScreenState extends State<TaskEditScreen> {
+  // 기본 입력 컨트롤러
   final _titleController = TextEditingController();
   final _memoController = TextEditingController();
-
-  late TextEditingController _titleController;
 
   DateTime _date = DateTime.now();
   TimeOfDay? _startTime; // 시작 시간 (선택 사항)
@@ -45,10 +43,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   String? _category; // 카테고리: 'work'(업무)/'side'(부업)/'private'(개인)/'invest'(투자)/null
   String? _projectId; // 이 할 일이 속한 프로젝트 id (null = 미분류)
 
-
-  // ▼ 반복 설정
+  // 반복 설정
   String? _repeatRule; // null(반복 없음) / 'daily'(매일) / 'weekly'(매주)
   final List<int> _repeatWeekdays = []; // 매주 반복 시 선택된 요일 (월=1 ~ 일=7)
+  
   // 5W2H 구체화 입력용 컨트롤러
   final _whyController = TextEditingController();
   final _howController = TextEditingController();
@@ -56,17 +54,17 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
 
   bool get _isEditMode => widget.existingTask != null;
 
-  // [▼ 새로 추가할 부분] 음성 인식(STT) 관련 변수
+  // 음성 인식(STT) 관련 변수 추가
   late stt.SpeechToText _speech;
   bool _isListening = false;
-  // [▲ 새로 추가할 부분 끝]
 
   @override
   void initState() {
     super.initState();
-    // [▼ 새로 추가할 부분] STT 객체 초기화
+    
+    // STT 객체 초기화
     _speech = stt.SpeechToText();
-    // [▲ 새로 추가할 부분 끝]
+
     final task = widget.existingTask;
     if (task != null) {
       _titleController.text = task.title;
@@ -94,46 +92,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       }
       _projectId = widget.initialProjectId;
     }
-
-  }
-
-  // [추가할 변수들] 음성 인식 관련
-  late stt.SpeechToText _speech;
-  bool _isListening = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // ... 기존 initState 코드 유지 ...
-    
-    // [추가] STT 초기화
-    _speech = stt.SpeechToText();
-  }
-  
-  // [추가] 마이크 버튼을 눌렀을 때 실행될 함수
-  void _listen() async {
-    if (!_isListening) {
-      // 마이크 권한 요청 및 초기화
-      bool available = await _speech.initialize(
-        onStatus: (val) => debugPrint('onStatus: $val'),
-        onError: (val) => debugPrint('onError: $val'),
-      );
-      if (available) {
-        setState(() => _isListening = true);
-        // 한국어('ko_KR')로 음성 인식 시작
-        _speech.listen(
-          localeId: 'ko_KR',
-          onResult: (val) => setState(() {
-            // 인식된 텍스트를 제목 입력창에 바로 꽂아줌
-            _titleController.text = val.recognizedWords;
-          }),
-        );
-      }
-    } else {
-      // 다시 누르면 인식 종료
-      setState(() => _isListening = false);
-      _speech.stop();
-    }
   }
 
   @override
@@ -146,7 +104,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     super.dispose();
   }
 
-  // [▼ 새로 추가할 부분] 음성 듣기 시작/종료 함수
+  // 음성 듣기 시작/종료 함수
   void _listen() async {
     if (!_isListening) {
       // 마이크 권한 허용 및 초기화 시도
@@ -170,7 +128,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       _speech.stop();
     }
   }
-  // [▲ 새로 추가할 부분 끝]
 
   @override
   Widget build(BuildContext context) {
@@ -189,27 +146,23 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-           // 제목 입력
+            // 제목 입력 (음성 인식 마이크 버튼 포함)
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
                 labelText: '제목 *',
                 hintText: '무슨 일을 해야 하나요?',
-                // [▼ 새로 추가할 부분] 텍스트 필드 우측에 마이크 아이콘 달기
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _isListening ? Icons.mic : Icons.mic_none, // 듣는 중에 아이콘 모양 변경
-                    color: _isListening ? Colors.red : Colors.grey, // 듣는 중에 빨간색으로 변경
+                    _isListening ? Icons.mic : Icons.mic_none, 
+                    color: _isListening ? Colors.red : Colors.grey, 
                   ),
-                  onPressed: _listen, // 누르면 아까 만든 _listen() 함수 실행
+                  onPressed: _listen, 
                   tooltip: '음성으로 제목 입력',
                 ),
-                // [▲ 새로 추가할 부분 끝]
               ),
               autofocus: !_isEditMode,
             ),
-
-
             const SizedBox(height: 14),
             // 메모 입력
             TextField(
@@ -228,7 +181,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             ),
             const SizedBox(height: 10),
 
-            // 시작 시간 선택 (선택 사항 - 없음으로 되돌릴 수 있음)
+            // 시작 시간 선택
             _buildRowSelector(
               icon: Icons.access_time_rounded,
               label: '시작 시간',
@@ -251,7 +204,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             ),
             const SizedBox(height: 10),
 
-            // 중요도 스위치
+            // 중요도 및 긴급도 스위치
             _buildSwitchRow(
               label: '중요한 일인가요?',
               value: _isImportant,
@@ -259,7 +212,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
               onChanged: (v) => setState(() => _isImportant = v),
             ),
             const SizedBox(height: 8),
-            // 긴급도 스위치
             _buildSwitchRow(
               label: '긴급한 일인가요?',
               value: _isUrgent,
@@ -279,19 +231,17 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ChoiceChip(
                   label: const Text('🏠 집'),
                   selected: _location == 'home',
-                  onSelected: (sel) =>
-                      setState(() => _location = sel ? 'home' : null),
+                  onSelected: (sel) => setState(() => _location = sel ? 'home' : null),
                 ),
                 ChoiceChip(
                   label: const Text('🚶 외부'),
                   selected: _location == 'outside',
-                  onSelected: (sel) =>
-                      setState(() => _location = sel ? 'outside' : null),
+                  onSelected: (sel) => setState(() => _location = sel ? 'outside' : null),
                 ),
               ],
             ),
 
-                        const SizedBox(height: 24),
+            const SizedBox(height: 24),
             const Text(
               '카테고리',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -303,26 +253,22 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ChoiceChip(
                   label: const Text('💼 업무'),
                   selected: _category == 'work',
-                  onSelected: (sel) =>
-                      setState(() => _category = sel ? 'work' : null),
+                  onSelected: (sel) => setState(() => _category = sel ? 'work' : null),
                 ),
                 ChoiceChip(
                   label: const Text('🚀 부업'),
                   selected: _category == 'side',
-                  onSelected: (sel) =>
-                      setState(() => _category = sel ? 'side' : null),
+                  onSelected: (sel) => setState(() => _category = sel ? 'side' : null),
                 ),
                 ChoiceChip(
                   label: const Text('🏡 개인'),
                   selected: _category == 'private',
-                  onSelected: (sel) =>
-                      setState(() => _category = sel ? 'private' : null),
+                  onSelected: (sel) => setState(() => _category = sel ? 'private' : null),
                 ),
                 ChoiceChip(
                   label: const Text('📈 투자'),
                   selected: _category == 'invest',
-                  onSelected: (sel) =>
-                      setState(() => _category = sel ? 'invest' : null),
+                  onSelected: (sel) => setState(() => _category = sel ? 'invest' : null),
                 ),
               ],
             ),
@@ -345,24 +291,18 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                     ),
                   );
                 }
-                // 저장된 projectId가 현재 프로젝트 목록에 없으면(삭제됨 등) null 처리
-                final validValue =
-                    projects.any((p) => p.id == _projectId) ? _projectId : null;
+                final validValue = projects.any((p) => p.id == _projectId) ? _projectId : null;
                 return Card(
                   margin: EdgeInsets.zero,
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String?>(
                         isExpanded: true,
                         value: validValue,
                         hint: const Text('프로젝트 없음'),
                         items: [
-                          const DropdownMenuItem<String?>(
-                            value: null,
-                            child: Text('프로젝트 없음'),
-                          ),
+                          const DropdownMenuItem<String?>(value: null, child: Text('프로젝트 없음')),
                           ...projects.map(
                             (p) => DropdownMenuItem<String?>(
                               value: p.id,
@@ -371,25 +311,16 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                                   Container(
                                     width: 12,
                                     height: 12,
-                                    decoration: BoxDecoration(
-                                      color: Color(p.colorValue),
-                                      shape: BoxShape.circle,
-                                    ),
+                                    decoration: BoxDecoration(color: Color(p.colorValue), shape: BoxShape.circle),
                                   ),
                                   const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      p.name,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
+                                  Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis)),
                                 ],
                               ),
                             ),
                           ),
                         ],
-                        onChanged: (value) =>
-                            setState(() => _projectId = value),
+                        onChanged: (value) => setState(() => _projectId = value),
                       ),
                     ),
                   ),
@@ -397,13 +328,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
               },
             ),
 
-
-                        // ▼ 반복 설정 UI
             const SizedBox(height: 24),
-            const Text(
-              '반복',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
+            const Text('반복', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,
@@ -431,7 +357,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ),
               ],
             ),
-            // 매주 반복일 때만 요일 칩을 보여줍니다. (월~일, 1~7)
             if (_repeatRule == 'weekly') ...[
               const SizedBox(height: 10),
               Wrap(
@@ -454,9 +379,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 }),
               ),
             ],
-            // ▲ 반복 설정 UI 끝
 
-            // ▼▼▼ 여기에 추가 ▼▼▼
             const SizedBox(height: 20),
             Card(
               margin: EdgeInsets.zero,
@@ -464,45 +387,29 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 tilePadding: const EdgeInsets.symmetric(horizontal: 14),
                 childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
                 leading: const Icon(Icons.center_focus_strong_rounded),
-                title: const Text(
-                  '구체화 (5W2H)',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                subtitle: const Text(
-                  '막연한 일을 구체적인 예정으로',
-                  style: TextStyle(fontSize: 11),
-                ),
+                title: const Text('구체화 (5W2H)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                subtitle: const Text('막연한 일을 구체적인 예정으로', style: TextStyle(fontSize: 11)),
                 children: [
                   TextField(
                     controller: _whyController,
-                    decoration: const InputDecoration(
-                      labelText: '왜 (목적·동기)',
-                      hintText: '이 일을 왜 하나요?',
-                    ),
+                    decoration: const InputDecoration(labelText: '왜 (목적·동기)', hintText: '이 일을 왜 하나요?'),
                     maxLines: 2,
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _howController,
-                    decoration: const InputDecoration(
-                      labelText: '어떻게 (방법·수단)',
-                      hintText: '어떤 방법으로 할까요?',
-                    ),
+                    decoration: const InputDecoration(labelText: '어떻게 (방법·수단)', hintText: '어떤 방법으로 할까요?'),
                     maxLines: 2,
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _howMuchController,
-                    decoration: const InputDecoration(
-                      labelText: '얼마나 (분량·기준)',
-                      hintText: '예: 30분, 10페이지, 3세트',
-                    ),
+                    decoration: const InputDecoration(labelText: '얼마나 (분량·기준)', hintText: '예: 30분, 10페이지, 3세트'),
                   ),
                 ],
               ),
             ),
 
-            // ▲▲▲ 여기까지 추가 ▲▲▲
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: _handleSave,
@@ -599,9 +506,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   Future<void> _handleSave() async {
     final title = _titleController.text.trim();
     if (title.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('제목을 입력해주세요.')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('제목을 입력해주세요.')));
       return;
     }
 
@@ -621,9 +526,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     if (_isEditMode) {
       final task = widget.existingTask!;
       task.title = title;
-      task.memo = _memoController.text.trim().isEmpty
-          ? null
-          : _memoController.text.trim();
+      task.memo = _memoController.text.trim().isEmpty ? null : _memoController.text.trim();
       task.date = _date;
       task.startTime = startDateTime;
       task.isImportant = _isImportant;
@@ -632,9 +535,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       task.category = _category;
       task.projectId = _projectId;
       task.repeatRule = _repeatRule;
-      task.repeatWeekdays = _repeatRule == 'weekly'
-          ? List<int>.from(_repeatWeekdays)
-          : [];
+      task.repeatWeekdays = _repeatRule == 'weekly' ? List<int>.from(_repeatWeekdays) : [];
       task.why = _textOrNull(_whyController.text);
       task.how = _textOrNull(_howController.text);
       task.howMuch = _textOrNull(_howMuchController.text);
@@ -644,9 +545,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       final newTask = Task(
         id: const Uuid().v4(),
         title: title,
-        memo: _memoController.text.trim().isEmpty
-            ? null
-            : _memoController.text.trim(),
+        memo: _memoController.text.trim().isEmpty ? null : _memoController.text.trim(),
         date: _date,
         startTime: startDateTime,
         isImportant: _isImportant,
@@ -655,13 +554,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         category: _category,
         projectId: _projectId,
         repeatRule: _repeatRule,
-        repeatWeekdays: _repeatRule == 'weekly'
-            ? List<int>.from(_repeatWeekdays)
-            : [],
+        repeatWeekdays: _repeatRule == 'weekly' ? List<int>.from(_repeatWeekdays) : [],
         why: _textOrNull(_whyController.text),
         how: _textOrNull(_howController.text),
         howMuch: _textOrNull(_howMuchController.text),
-
         createdAt: DateTime.now(),
       );
       await appState.addTask(newTask);
@@ -671,7 +567,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   }
 
   Future<void> _handleDelete() async {
-    final appState = context.read<AppState>(); // async 이전에 미리 참조 확보
+    final appState = context.read<AppState>(); 
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -695,7 +591,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     }
   }
 
-  // 입력값이 비어 있으면 null, 아니면 앞뒤 공백을 없앤 문자열을 돌려줍니다.
   String? _textOrNull(String text) {
     final trimmed = text.trim();
     return trimmed.isEmpty ? null : trimmed;
