@@ -60,3 +60,6 @@ timezone: ^0.9.2
 csv: ^6.0.0
 share_plus: ^10.1.0
 path_provider: ^2.1.4 # (파일을 임시 저장할 경로를 찾기 위해 필요합니다)
+
+# [추가할 패키지] 홈 화면 위젯 연동
+home_widget: ^0.3.1
