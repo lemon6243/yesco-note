@@ -245,20 +245,23 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // [수정된 부분] Task 수정 시 알림 재설정(취소 후 재예약)
+  // Task 수정 시 알림 재설정(취소 후 재예약)
   Future<void> updateTask(Task task) async {
     await storage.saveTask(task);
-    
-    // 상태가 완료(isDone)로 바뀌었거나 시간이 없어졌을 수 있으므로 
-    // 일단 기존 예약된 알림을 취소합니다.
+  
+    // 기존 예약된 알림을 일단 취소
     await NotificationService().cancelTaskNotification(task.id);
-    
-    // 미완료 상태이고 시간이 있다면 다시 새 시간으로 예약합니다.
+  
+    // 미완료 상태이고 시간이 있다면 다시 예약
     if (!task.isDone && task.startTime != null) {
       await NotificationService().scheduleTaskNotification(task);
-      WidgetService.sendTasksToWidget(storage.getAllTasks());
-      notifyListeners();
+    }
+  
+    // 위젯 갱신과 화면 갱신은 if 밖에서 항상 실행
+    WidgetService.sendTasksToWidget(storage.getAllTasks());
+    notifyListeners();
   }
+
 
   // [수정된 부분] Task 삭제 시 알림 취소
   Future<void> deleteTask(String id) async {
