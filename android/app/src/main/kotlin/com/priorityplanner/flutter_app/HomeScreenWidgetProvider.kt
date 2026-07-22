@@ -1,4 +1,4 @@
-package com.example.flutter_app // 본인의 패키지명으로 꼭 변경해주세요!
+package com.priorityplanner.flutter_app
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
