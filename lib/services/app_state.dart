@@ -20,6 +20,8 @@ import '../models/morning_session.dart';
 import '../models/project.dart';
 import 'storage_service.dart';
 import 'notification_service.dart'; // <--- 추가
+import 'widget_service.dart'; // <--- 추가
+
 
 
 class AppState extends ChangeNotifier {
@@ -237,7 +239,9 @@ class AppState extends ChangeNotifier {
   Future<void> addTask(Task task) async {
     await storage.saveTask(task);
     // 새로 추가된 할 일에 시간이 설정되어 있다면 알림 예약
-    await NotificationService().scheduleTaskNotification(task); 
+    await NotificationService().scheduleTaskNotification(task);
+    // [추가된 부분] 할 일이 추가되면 위젯 데이터도 갱신
+    WidgetService.sendTasksToWidget(storage.getAllTasks());
     notifyListeners();
   }
 
@@ -253,7 +257,8 @@ class AppState extends ChangeNotifier {
     if (!task.isDone && task.startTime != null) {
       await NotificationService().scheduleTaskNotification(task);
   }
-     notifyListeners();
+      WidgetService.sendTasksToWidget(storage.getAllTasks());
+      notifyListeners();
   }
 
   // [수정된 부분] Task 삭제 시 알림 취소
@@ -261,6 +266,9 @@ class AppState extends ChangeNotifier {
     await storage.deleteTask(id);
     // 할 일이 삭제되면 예약된 알림도 삭제
     await NotificationService().cancelTaskNotification(id);
+
+     // [추가된 부분] 할 일이 삭제되면 위젯 데이터도 갱신
+    WidgetService.sendTasksToWidget(storage.getAllTasks());
     notifyListeners();
   }
 
