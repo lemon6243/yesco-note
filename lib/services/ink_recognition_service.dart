@@ -42,6 +42,10 @@ class InkRecognitionService {
     final ink = mlkit.Ink();
     final List<mlkit.Stroke> mlStrokes = [];
 
+    // [수정된 부분] 획(Stroke)들이 동시에 그려진 것으로 인식되지 않도록
+    // 전체 획에 대해 연속적으로 증가하는 타임스탬프를 적용합니다.
+    int currentTimeMs = DateTime.now().millisecondsSinceEpoch;
+
     for (final s in strokes) {
       // 지우개 획(흰색)은 인식에서 제외
       if (s.colorValue == 0xFFFFFFFF) continue;
@@ -49,18 +53,21 @@ class InkRecognitionService {
 
       final mlStroke = mlkit.Stroke();
       final List<mlkit.StrokePoint> pts = [];
-      // t(타임스탬프)는 획 내 순서만 맞으면 되므로 인덱스를 ms처럼 사용
-      int t = 0;
+      
       for (final p in s.points) {
         pts.add(mlkit.StrokePoint(
           x: p.x,
           y: p.y,
-          t: t, // long 이어야 함
+          t: currentTimeMs, 
         ));
-        t += 10; // 점 사이 임의 간격(정확도 영향 미미)
+        // 점과 점 사이의 시간 간격(10ms)
+        currentTimeMs += 10; 
       }
       mlStroke.points = pts;
       mlStrokes.add(mlStroke);
+
+      // 한 획(Stroke)이 끝나고 다음 획을 그릴 때까지의 시간 간격(100ms)
+      currentTimeMs += 100;
     }
 
     if (mlStrokes.isEmpty) return null;
