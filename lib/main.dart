@@ -15,27 +15,34 @@ import 'services/storage_service.dart';
 import 'services/app_state.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_navigation.dart';
+import 'services/notification_service.dart'; // <--- 추가
+
 
 void main() async {
-  // Flutter 엔진과 위젯 바인딩을 먼저 준비합니다. (비동기 초기화 전에 필수)
+  // Flutter 엔진과 위젯 바인딩을 먼저 준비합니다.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 한국어 날짜 형식(예: "7월 10일 (금)")을 사용하기 위한 준비 작업
+  // 한국어 날짜 형식 준비
   await initializeDateFormatting('ko_KR');
+
+  // [새로 추가된 부분] 로컬 알림 서비스 초기화
+  final notificationService = NotificationService();
+  await notificationService.init();
 
   // 로컬 데이터베이스(Hive) 초기화
   final storageService = StorageService();
   await storageService.init();
 
-  // 앱 상태 객체 생성 후, 다크모드 설정 불러오기 + 미완료 할 일 이월 처리
+  // 앱 상태 객체 생성
   final appState = AppState(storageService);
   await appState.loadThemePreference();
-  await appState.loadGrowthAnimal(); // 저장된 성장 동물 불러오기
+  await appState.loadGrowthAnimal(); 
   await appState.initializeAndCarryOverTasks();
-  await appState.generateRepeatingTasks(); // 반복 할 일 오늘치 자동 생성
+  await appState.generateRepeatingTasks(); 
 
   runApp(ChangeNotifierProvider.value(value: appState, child: const MyApp()));
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
