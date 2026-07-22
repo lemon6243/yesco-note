@@ -256,7 +256,6 @@ class AppState extends ChangeNotifier {
     // 미완료 상태이고 시간이 있다면 다시 새 시간으로 예약합니다.
     if (!task.isDone && task.startTime != null) {
       await NotificationService().scheduleTaskNotification(task);
-  }
       WidgetService.sendTasksToWidget(storage.getAllTasks());
       notifyListeners();
   }
@@ -275,6 +274,7 @@ class AppState extends ChangeNotifier {
   Future<void> toggleTaskDone(Task task) async {
     task.isDone = !task.isDone;
     await storage.saveTask(task);
+    WidgetService.sendTasksToWidget(storage.getAllTasks());   // ← 추가 필수
     notifyListeners();
   }
 
