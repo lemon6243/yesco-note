@@ -1,154 +1,142 @@
-// ============================================================
-// DashboardScreen (통합 통계 대시보드)
-// ------------------------------------------------------------
-// 그동안 쌓인 기록을 한눈에 보여주는 화면입니다.
-// - 상단: 성장 마스코트 카드 (예스코 성장 단계 + 레벨 + 진행바)
-// - 요약 카드 4개 (완료한 할 일 / 습관 최고 연속 / 아침 총시간 / 아침 연속)
-// - 최근 7일 완료한 할 일 막대그래프
-// - 최근 7일 아침 집중 시간(분) 막대그래프
-// 새 데이터를 저장하지 않고, AppState의 통계 getter만 읽어서 보여줍니다.
-// ============================================================
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:confetti/confetti.dart'; // 폭죽 패키지
 import '../services/app_state.dart';
 import '../services/export_service.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  // 폭죽 컨트롤러
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    // 폭죽 재생 시간 설정 (1.5초간 발사)
+    _confettiController = ConfettiController(duration: const Duration(milliseconds: 1500));
+    
+    // 화면이 켜지자마자 축하용으로 한 번 터뜨리려면 아래 주석을 해제하세요.
+    // _confettiController.play(); 
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
-
-    // 최근 7일 데이터 준비
     final days = appState.last7Days;
     final taskCounts = appState.last7DaysCompletedTasks;
     final morningMinutes = appState.last7DaysMorningMinutes;
-
-    // 아침 총 시간(분)으로 환산
     final totalMorningMin = (appState.totalMorningSeconds / 60).round();
 
     return Scaffold(
       appBar: AppBar(title: const Text('통계 대시보드')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Stack(
+          alignment: Alignment.topCenter,
           children: [
-            // ---- 성장 마스코트 카드 ----
-            _growthCard(context, appState),
-            const SizedBox(height: 24),
-
-            // ---- 요약 카드 4개 (2x2 그리드) ----
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true, // ListView 안에서 높이를 내용에 맞춤
-              physics: const NeverScrollableScrollPhysics(), // 자체 스크롤 끔
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.5,
+            ListView(
+              padding: const EdgeInsets.all(16),
               children: [
-                _summaryCard(
-                  icon: Icons.check_circle_outline,
-                  color: Colors.teal,
-                  label: '완료한 할 일',
-                  value: '${appState.totalCompletedTasks}개',
+                // ---- 성장 마스코트 카드 ----
+                // 캐릭터 카드를 탭하면 폭죽이 터지도록 GestureDetector로 감쌉니다.
+                GestureDetector(
+                  onTap: () {
+                    _confettiController.play(); // 탭할 때마다 폭죽 발사!
+                  },
+                  child: _growthCard(context, appState),
                 ),
-                _summaryCard(
-                  icon: Icons.local_fire_department_outlined,
-                  color: Colors.deepOrange,
-                  label: '습관 최고 연속',
-                  value: '${appState.bestHabitStreak}일',
-                ),
-                _summaryCard(
-                  icon: Icons.wb_twilight,
-                  color: Colors.indigo,
-                  label: '아침 총 시간',
-                  value: '$totalMorningMin분',
-                ),
-                _summaryCard(
-                  icon: Icons.event_repeat,
-                  color: Colors.purple,
-                  label: '아침 연속',
-                  value: '${appState.morningStreak}일',
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-            // ---- 최근 7일: 완료한 할 일 ----
-            _sectionTitle('최근 7일 · 완료한 할 일'),
-            const SizedBox(height: 12),
-            _barChart(
-              context: context,
-              days: days,
-              values: taskCounts,
-              barColor: Colors.teal,
-              unit: '개',
-            ),
-            const SizedBox(height: 24),
+                // ---- 요약 카드 4개 ----
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.5,
+                  children: [
+                    _summaryCard(icon: Icons.check_circle_outline, color: Colors.teal, label: '완료한 할 일', value: '${appState.totalCompletedTasks}개'),
+                    _summaryCard(icon: Icons.local_fire_department_outlined, color: Colors.deepOrange, label: '습관 최고 연속', value: '${appState.bestHabitStreak}일'),
+                    _summaryCard(icon: Icons.wb_twilight, color: Colors.indigo, label: '아침 총 시간', value: '$totalMorningMin분'),
+                    _summaryCard(icon: Icons.event_repeat, color: Colors.purple, label: '아침 연속', value: '${appState.morningStreak}일'),
+                  ],
+                ),
+                const SizedBox(height: 24),
 
-            // ---- 최근 7일: 아침 집중 시간 ----
-            _sectionTitle('최근 7일 · 아침 집중 시간(분)'),
-            const SizedBox(height: 12),
-            _barChart(
-              context: context,
-              days: days,
-              values: morningMinutes,
-              barColor: Colors.indigo,
-              unit: '분',
-            ),
-            // ---- 이번 주 카테고리별 완료 ----
-            const SizedBox(height: 24),
-            _sectionTitle('이번 주 · 카테고리별 완료'),
-            const SizedBox(height: 12),
-            _categoryCard(context, appState),
-            const SizedBox(height: 16),
-            // [새로 추가할 부분 시작] ---- 데이터 내보내기 버튼 ----
-            const Divider(height: 48, thickness: 1), // 구분선
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.file_download_outlined),
-                label: const Text('모든 데이터 백업 (CSV 내보내기)'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
-                  side: BorderSide(color: Theme.of(context).colorScheme.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                // ---- 최근 7일 그래프 및 카테고리 (기존 로직 동일) ----
+                _sectionTitle('최근 7일 · 완료한 할 일'),
+                const SizedBox(height: 12),
+                _barChart(context: context, days: days, values: taskCounts, barColor: Colors.teal, unit: '개'),
+                const SizedBox(height: 24),
+                _sectionTitle('최근 7일 · 아침 집중 시간(분)'),
+                const SizedBox(height: 12),
+                _barChart(context: context, days: days, values: morningMinutes, barColor: Colors.indigo, unit: '분'),
+                const SizedBox(height: 24),
+                _sectionTitle('이번 주 · 카테고리별 완료'),
+                const SizedBox(height: 12),
+                _categoryCard(context, appState),
+                const SizedBox(height: 16),
+
+                // ---- 데이터 내보내기 버튼 ----
+                const Divider(height: 48, thickness: 1),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.file_download_outlined),
+                    label: const Text('모든 데이터 백업 (CSV 내보내기)'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () async {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('데이터를 추출하는 중입니다...'), duration: Duration(seconds: 1)));
+                      try {
+                        final exportService = ExportService(appState.storage);
+                        await exportService.exportAllDataToCsv();
+                      } catch (e) {
+                        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('내보내기 실패: $e')));
+                      }
+                    },
                   ),
                 ),
-                onPressed: () async {
-                  // 로딩 표시용 스낵바
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('데이터를 추출하는 중입니다...'),
-                      duration: Duration(seconds: 1),
-                    ),
-                  );
-
-                  try {
-                    // ExportService를 호출하여 내보내기 실행
-                    final exportService = ExportService(appState.storage);
-                    await exportService.exportAllDataToCsv();
-                  } catch (e) {
-                    // 오류 발생 시 알림
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('내보내기 실패: $e')),
-                      );
-                    }
-                  }
-                },
-              ),
+                const SizedBox(height: 32),
+              ],
             ),
-            const SizedBox(height: 32),
+            
+            // [추가된 부분] 화면 맨 위에 폭죽 발사기 배치
+            ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: 3.14 / 2, // 아래로 발사 (Pi / 2)
+              maxBlastForce: 5,  // 발사 세기
+              minBlastForce: 2,
+              emissionFrequency: 0.05, // 뿜어내는 빈도
+              numberOfParticles: 50, // 파티클 개수
+              gravity: 0.1, // 떨어지는 속도
+            ),
           ],
         ),
       ),
     );
   }
+
+  // --- 기존의 하단 헬퍼 메서드들은 그대로 유지합니다 ---
+  // (_growthCard, _summaryCard, _sectionTitle, _barChart, _categoryCard)
+  // (참고: 너무 길어서 생략했습니다. 기존 파일에 있던 헬퍼 위젯 코드를 이 아래에 그대로 두시면 됩니다!)
+
 
   // 성장 마스코트 카드 (예스코 이미지 + 레벨 + 진행바)
   Widget _growthCard(BuildContext context, AppState appState) {
