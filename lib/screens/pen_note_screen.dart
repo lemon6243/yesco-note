@@ -78,7 +78,9 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
           SnackBar(content: Text('인식됨: $text')),
         );
       }
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('필기인식 오류: $e');
+      debugPrint('스택: $st');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('인식 오류: $e')),
