@@ -125,34 +125,6 @@ class AppState extends ChangeNotifier {
       // 이 원본이 오늘 반복되어야 하는지 판단합니다.
       if (!_shouldRepeatOn(source, todayOnly)) continue;
 
-      // ---------------- 미완료 이월 ----------------
-
-    // 어제(이전)의 미완료 할 일을 오늘로 이월한 개수
-    int _justCarriedOverCount = 0;
-    int get justCarriedOverCount => _justCarriedOverCount;
-  
-    // 이월 알림을 띄운 뒤 카운트를 리셋
-    void clearCarriedOverCount() {
-      _justCarriedOverCount = 0;
-    }
-  
-    // 앱 시작 시 호출: 오늘 이전의 미완료 할 일을 오늘 날짜로 옮깁니다.
-    Future<void> initializeAndCarryOverTasks() async {
-      final now = DateTime.now();
-      final todayOnly = DateTime(now.year, now.month, now.day);
-  
-      int carried = 0;
-      for (final task in storage.getAllTasks()) {
-        final taskDay = DateTime(task.date.year, task.date.month, task.date.day);
-        if (taskDay.isBefore(todayOnly) && !task.isDone && task.repeatRule == null) {
-          task.date = todayOnly;
-          await storage.saveTask(task);
-          carried++;
-        }
-      }
-      _justCarriedOverCount = carried;
-      notifyListeners();
-    }
 
 
       // 이미 오늘 날짜로 이 원본에서 생성된 인스턴스가 있으면 건너뜁니다.
@@ -206,6 +178,37 @@ class AppState extends ChangeNotifier {
       return source.repeatWeekdays.contains(date.weekday);
     }
     return false;
+  }
+
+    bool _shouldRepeatOn(Task source, DateTime date) {
+    ...
+    return false;
+  }
+                                          // ← _shouldRepeatOn 끝
+
+  // ---------------- 미완료 이월 ----------------
+  int _justCarriedOverCount = 0;
+  int get justCarriedOverCount => _justCarriedOverCount;
+
+  void clearCarriedOverCount() {
+    _justCarriedOverCount = 0;
+  }
+
+  Future<void> initializeAndCarryOverTasks() async {
+    final now = DateTime.now();
+    final todayOnly = DateTime(now.year, now.month, now.day);
+
+    int carried = 0;
+    for (final task in storage.getAllTasks()) {
+      final taskDay = DateTime(task.date.year, task.date.month, task.date.day);
+      if (taskDay.isBefore(todayOnly) && !task.isDone && task.repeatRule == null) {
+        task.date = todayOnly;
+        await storage.saveTask(task);
+        carried++;
+      }
+    }
+    _justCarriedOverCount = carried;
+    notifyListeners();
   }
 
   // ---------------- 장소 필터 (전체 / 집 / 외부) ----------------
