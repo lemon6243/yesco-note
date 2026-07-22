@@ -50,3 +50,9 @@ flutter:
   assets:
     - assets/icons/
     - assets/growth/
+.
+  
+  # [추가할 패키지] 푸시 알림 및 시간 스케줄링
+flutter_local_notifications: ^17.1.2
+timezone: ^0.9.2
+
