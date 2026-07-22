@@ -19,6 +19,8 @@ import '../models/habit.dart';
 import '../models/morning_session.dart';
 import '../models/project.dart';
 import 'storage_service.dart';
+import 'notification_service.dart'; // <--- 추가
+
 
 class AppState extends ChangeNotifier {
   final StorageService storage;
@@ -231,18 +233,34 @@ class AppState extends ChangeNotifier {
   List<Task> get top3Tasks =>
       tasksForSelectedDate.where((t) => t.isTop3).toList();
 
+  // [수정된 부분] Task 추가 시 알림 예약
   Future<void> addTask(Task task) async {
     await storage.saveTask(task);
+    // 새로 추가된 할 일에 시간이 설정되어 있다면 알림 예약
+    await NotificationService().scheduleTaskNotification(task); 
     notifyListeners();
   }
 
+  // [수정된 부분] Task 수정 시 알림 재설정(취소 후 재예약)
   Future<void> updateTask(Task task) async {
     await storage.saveTask(task);
-    notifyListeners();
+    
+    // 상태가 완료(isDone)로 바뀌었거나 시간이 없어졌을 수 있으므로 
+    // 일단 기존 예약된 알림을 취소합니다.
+    await NotificationService().cancelTaskNotification(task.id);
+    
+    // 미완료 상태이고 시간이 있다면 다시 새 시간으로 예약합니다.
+    if (!task.isDone && task.startTime != null) {
+      await NotificationService().scheduleTaskNotification(task);
+  }
+     notifyListeners();
   }
 
+  // [수정된 부분] Task 삭제 시 알림 취소
   Future<void> deleteTask(String id) async {
     await storage.deleteTask(id);
+    // 할 일이 삭제되면 예약된 알림도 삭제
+    await NotificationService().cancelTaskNotification(id);
     notifyListeners();
   }
 
