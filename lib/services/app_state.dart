@@ -180,11 +180,8 @@ class AppState extends ChangeNotifier {
     return false;
   }
 
-    bool _shouldRepeatOn(Task source, DateTime date) {
-    ...
-    return false;
-  }
-                                          // ← _shouldRepeatOn 끝
+    
+                              
 
   // ---------------- 미완료 이월 ----------------
   int _justCarriedOverCount = 0;
