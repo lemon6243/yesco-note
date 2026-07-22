@@ -12,6 +12,8 @@ import '../services/app_state.dart';
 import '../models/note.dart';
 import '../models/drawn_stroke.dart';
 import '../widgets/pen_canvas.dart';
+import '../services/ink_recognition_service.dart';
+
 
 class PenNoteScreen extends StatefulWidget {
   final Note? note; // 편집할 노트 (null이면 새 노트)
@@ -42,11 +44,50 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
     );
   }
 
+  final InkRecognitionService _inkService = InkRecognitionService();
+  bool _recognizing = false;
+
   @override
   void dispose() {
     _textController.dispose();
+    _inkService.dispose();
     super.dispose();
   }
+
+  Future<void> _convertToText() async {
+    if (_strokes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('먼저 손글씨를 써주세요.')),
+      );
+      return;
+    }
+    setState(() => _recognizing = true);
+    try {
+      final text = await _inkService.recognize(_strokes);
+      if (!mounted) return;
+      if (text == null || text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('글씨를 인식하지 못했어요. 더 또박또박 써보세요.')),
+        );
+      } else {
+        // 인식 결과를 메모창에 채움 (기존 내용 뒤에 붙임)
+        final existing = _textController.text.trim();
+        _textController.text =
+            existing.isEmpty ? text : '$existing $text';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('인식됨: $text')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('인식 오류: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _recognizing = false);
+    }
+  }
+
 
   Future<void> _save() async {
     final text = _textController.text.trim();
@@ -77,6 +118,20 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
       appBar: AppBar(
         title: Text(_isEditing ? '손그림 노트 편집' : '손그림 노트'),
         actions: [
+          // 손글씨 → 텍스트 변환
+          _recognizing
+              ? const Padding(
+                  padding: EdgeInsets.all(14),
+                  child: SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : TextButton(
+                  onPressed: _convertToText,
+                  child: const Text('텍스트로'),
+                ),
           TextButton(
             onPressed: _save,
             child: const Text('저장'),
