@@ -13,6 +13,8 @@ import '../models/note.dart';
 import '../models/drawn_stroke.dart';
 import '../widgets/pen_canvas.dart';
 import '../services/ink_recognition_service.dart';
+import '../widgets/voice_input_button.dart';
+
 
 class PenNoteScreen extends StatefulWidget {
   final Note? note; // 편집할 노트 (null이면 새 노트)
@@ -188,10 +190,18 @@ class _PenNoteScreenState extends State<PenNoteScreen> {
                 controller: _textController,
                 minLines: 1,
                 maxLines: 3,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: '메모(선택) — 그림에 대한 설명을 적어도 됩니다',
+                  suffixIcon: VoiceInputButton(
+                    onResult: (text) {
+                      final existing = _textController.text.trim();
+                      _textController.text =
+                          existing.isEmpty ? text : '$existing\n$text';
+                    },
+                  ),
                 ),
               ),
+
               const SizedBox(height: 12),
               // 캔버스 (남은 공간 전부 사용, 편집이면 기존 획을 불러옴)
               Expanded(
