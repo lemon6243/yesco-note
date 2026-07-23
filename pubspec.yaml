@@ -36,7 +36,7 @@ dependencies:
   # 애니메이션 / 음성 인식
   lottie: ^3.1.2
   confetti: ^0.7.0
-  speech_to_text: ^6.6.0
+  speech_to_text: ^7.4.0
 
 dev_dependencies:
   flutter_test:
