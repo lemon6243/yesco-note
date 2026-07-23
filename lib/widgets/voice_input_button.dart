@@ -59,9 +59,8 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
 
     if (mounted) setState(() => _isListening = true);
     _speech.listen(
-      localeId: 'ko_KR',
+      listenOptions: stt.SpeechListenOptions(localeId: 'ko_KR'),
       onResult: (result) {
-        // 최종 결과만 반영 (중간 결과 중복 방지)
         if (result.finalResult) {
           widget.onResult(result.recognizedWords);
         }
