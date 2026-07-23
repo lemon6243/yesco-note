@@ -31,7 +31,7 @@ dependencies:
   path_provider: ^2.1.4
 
   # 홈 화면 위젯 연동
-  home_widget: ^0.3.1
+  home_widget: ^0.6.0
 
   # 애니메이션 / 음성 인식
   lottie: ^3.1.2
