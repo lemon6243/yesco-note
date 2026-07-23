@@ -118,11 +118,6 @@ class _MeetingNoteScreenState extends State<MeetingNoteScreen> {
   }
 
   Future<void> _save() async {
-    // 저장 전 녹음 중이면 멈춤
-    if (_isRecording) {
-      setState(() => _isRecording = false);
-      await _speech.stop();
-    }
     final content = _bodyController.text.trim();
     if (content.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -131,13 +126,20 @@ class _MeetingNoteScreenState extends State<MeetingNoteScreen> {
       return;
     }
     final appState = context.read<AppState>();
+    final navigator = Navigator.of(context); // await 전에 미리 잡아둠
     if (_isEditing) {
-      await appState.updateMeeting(widget.meeting!,
-          content: content, meetingDate: _meetingDate);
+      await appState.updateMeeting(
+        widget.meeting!,
+        content: content,
+        meetingDate: _meetingDate,
+      );
     } else {
-      await appState.addMeeting(content: content, meetingDate: _meetingDate);
+      await appState.addMeeting(
+        content: content,
+        meetingDate: _meetingDate,
+      );
     }
-    if (mounted) Navigator.pop(context);
+    if (mounted) navigator.pop(); // context 없이 미리 잡은 navigator 사용
   }
 
   @override
