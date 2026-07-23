@@ -25,9 +25,9 @@ class NoteAdapter extends TypeAdapter<Note> {
       convertedText: fields[5] as String?,
       convertedTaskId: fields[6] as String?,
       penStrokes: fields[7] as String?,
-    )
-      ..isMeeting = fields[8] as bool
-      ..meetingDate = fields[9] as DateTime?;
+      isMeeting: fields[8] as bool,
+      meetingDate: fields[9] as DateTime?,
+    );
   }
 
   @override
