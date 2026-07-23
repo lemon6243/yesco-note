@@ -205,6 +205,7 @@ class AppState extends ChangeNotifier {
       }
     }
     _justCarriedOverCount = carried;
+    WidgetService.sendTasksToWidget(storage.getAllTasks());  // ← 추가
     notifyListeners();
   }
 
