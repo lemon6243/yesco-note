@@ -25,13 +25,15 @@ class NoteAdapter extends TypeAdapter<Note> {
       convertedText: fields[5] as String?,
       convertedTaskId: fields[6] as String?,
       penStrokes: fields[7] as String?,
-    );
+    )
+      ..isMeeting = fields[8] as bool
+      ..meetingDate = fields[9] as DateTime?;
   }
 
   @override
   void write(BinaryWriter writer, Note obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +49,11 @@ class NoteAdapter extends TypeAdapter<Note> {
       ..writeByte(6)
       ..write(obj.convertedTaskId)
       ..writeByte(7)
-      ..write(obj.penStrokes);
+      ..write(obj.penStrokes)
+      ..writeByte(8)
+      ..write(obj.isMeeting)
+      ..writeByte(9)
+      ..write(obj.meetingDate);
   }
 
   @override
