@@ -400,9 +400,9 @@ class AppState extends ChangeNotifier {
   // ---------------- 회의록 관련 ----------------
 
   // 회의록만 골라서 반환 (회의 날짜 최신순 정렬)
-  List<Note> get allNotes =>
-      storage.getAllNotes().where((n) => !n.isMeeting).toList();
-
+  List<Note> get allMeetings {
+    final list =
+        storage.getAllNotes().where((n) => n.isMeeting).toList();
     list.sort((a, b) {
       final ad = a.meetingDate ?? a.createdAt;
       final bd = b.meetingDate ?? b.createdAt;
