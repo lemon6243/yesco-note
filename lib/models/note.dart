@@ -66,6 +66,15 @@ class Note extends HiveObject {
   @HiveField(7)
   String? penStrokes;
 
+  // 이 노트가 회의록인지 여부 (기본값 false = 일반 생각 노트)
+  @HiveField(8)
+  bool isMeeting;
+
+  // 회의가 열린 날짜 (회의록일 때만 사용, 일반 노트는 null)
+  @HiveField(9)
+  DateTime? meetingDate;
+
+
 
   Note({
     required this.id,
