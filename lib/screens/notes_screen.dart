@@ -15,7 +15,6 @@ import '../models/drawn_stroke.dart';
 import '../theme/app_theme.dart';
 import '../widgets/pen_canvas.dart';
 import 'pen_note_screen.dart';
-import 'meeting_note_screen.dart';   // 추가
 import 'meeting_list_screen.dart';   // 이 줄 추가
 
 class NotesScreen extends StatefulWidget {
