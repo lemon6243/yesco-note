@@ -85,5 +85,7 @@ class Note extends HiveObject {
     this.convertedText,
     this.convertedTaskId,
     this.penStrokes,
+    this.isMeeting = false,   // 추가
+    this.meetingDate,          // 추가
   });
 }
