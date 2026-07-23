@@ -49,7 +49,9 @@ class WidgetService {
     // 5. 위젯 새로고침 명령 전송
     await HomeWidget.updateWidget(
       name: androidWidgetName,
+      androidName: androidWidgetName,
       iOSName: iosWidgetName,
     );
+
   }
 }
