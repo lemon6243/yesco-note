@@ -142,7 +142,18 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             // 메모 입력
             TextField(
               controller: _memoController,
-              decoration: const InputDecoration(labelText: '상세 메모 (선택)'),
+              decoration: InputDecoration(
+                labelText: '상세 메모 (선택)',
+                suffixIcon: VoiceInputButton(
+                  onResult: (text) {
+                    setState(() {
+                      final existing = _memoController.text.trim();
+                      _memoController.text =
+                          existing.isEmpty ? text : '$existing\n$text';
+                    });
+                  },
+                ),
+              ),
               maxLines: 3,
             ),
             const SizedBox(height: 20),
