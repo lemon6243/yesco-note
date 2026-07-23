@@ -40,19 +40,8 @@ class _NotesScreenState extends State<NotesScreen> {
     final notes = appState.allNotes;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('생각 노트'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.event_note),
-            tooltip: '회의록 목록',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const MeetingListScreen()),
-            ),
-          ),
-        ],
-      ),
+     appBar: AppBar(title: const Text('생각 노트')),
+
 
       body: SafeArea(
         child: Column(
@@ -94,14 +83,14 @@ class _NotesScreenState extends State<NotesScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // 회의록 작성 진입 버튼
+                 // 회의록 목록 진입 버튼
                   IconButton.filledTonal(
-                    icon: const Icon(Icons.mic_none_rounded),
-                    tooltip: '회의록 작성',
+                    icon: const Icon(Icons.event_note),
+                    tooltip: '회의록',
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const MeetingNoteScreen()),
+                          builder: (_) => const MeetingListScreen()),
                     ),
                   ),
                 ],
