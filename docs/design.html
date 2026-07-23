@@ -67,7 +67,7 @@
 <body>
 
 <h1>📱 업무 계획관리 앱 — 최종 설계도</h1>
-<p class="subtitle">이케다 지에 「매일 아침 1시간이 나를 바꾼다」 방법론 기반 · 최종 갱신 2026-07-21</p>
+<p class="subtitle">이케다 지에 「매일 아침 1시간이 나를 바꾼다」 방법론 기반 · 최종 갱신 2026-07-23</p>
 
 <div class="card">
   <h2>1. 앱의 정체성 (한 문장)</h2>
@@ -83,7 +83,7 @@
     <li><b>개발 PC:</b> Windows 64비트 (개인 PC 또는 회사 팀 노트북에서 작업)</li>
     <li><b>대상 기기:</b> 태블릿 우선(펜 입력 지원). 화면은 폰·태블릿 모두 반응형으로 설계. 테스트 기기: 갤럭시 탭(SM X400) 등</li>
     <li><b>데이터 저장:</b> 1단계는 기기 로컬 저장(Hive) → 추후 로그인·클라우드 동기화 확장</li>
-    <li><b>주요 패키지:</b> provider(상태관리), hive·hive_flutter(로컬 저장), shared_preferences(다크모드·성장 동물 설정), intl(날짜 포맷), uuid(고유 ID), table_calendar(월간 캘린더). 개발용: build_runner, hive_generator.</li>
+    <li><b>주요 패키지:</b> provider(상태관리), hive·hive_flutter(로컬 저장), shared_preferences(다크모드·성장 동물 설정), intl(날짜 포맷), uuid(고유 ID), table_calendar(월간 캘린더), google_mlkit_digital_ink_recognition(펜 손글씨 인식, ^0.13.0 고정), flutter_local_notifications·timezone(알림), home_widget(홈 화면 위젯, ^0.6.0), speech_to_text(음성 입력), csv·share_plus·path_provider(내보내기), lottie·confetti(연출). 개발용: build_runner, hive_generator.</li>
     <li class="note" style="list-style:none; margin-left:-22px;">※ Power Apps와는 코드 호환이 안 됨(별개 결과물). 향후 Teams 활용이 필요하면 Flutter 웹 버전을 Teams 탭으로 삽입하는 경로를 검토.</li>
   </ul>
 </div>
@@ -93,11 +93,12 @@
   <div class="flow">아침에 앱을 연다 → 오늘의 일정·할 일을 시간순으로 한눈에 본다 → 오늘 할 일을 적는다 → 중요도·긴급도로 분류(2×2 매트릭스) → 오늘 집중할 3가지 선정 → 하루 동안 완료 체크 → 저녁에 회고한다</div>
   <div class="flow">아침 1시간 루틴: '아침' 탭에서 타이머를 켜고 집중 시간(기본 60분)을 측정 → 끝나면 무엇을 했는지 메모와 함께 기록 저장 → 실천한 날의 연속일수가 쌓임</div>
   <div class="flow">생각 노트: 부담 없이 쏟아내기(빈 종이) → 키보드 또는 <b>펜 손그림</b>으로 입력 → 나중에 분류 → '할 일로 전환' 버튼으로 실제 태스크와 연결</div>
-  <div class="flow"><b>펜 손그림 → 할 일 흐름(확정):</b> 손그림 노트를 펜으로 작성 → (3단계) 손글씨를 텍스트로 변환 → 변환된 텍스트가 노트 내용이 됨 → '할 일로 전환'하면 그 <b>텍스트</b>가 오늘 화면 할 일 제목으로 넘어감. 그림 원본은 생각 노트 안에 그대로 남고, 할 일은 텍스트로만 관리(Task에 그림 필드를 두지 않음).</div>
+  <div class="flow"><b>펜 손그림 → 할 일 흐름(구현 완료):</b> 손그림 노트를 펜으로 작성 → <b>"텍스트로 변환"</b> 버튼으로 손글씨를 텍스트로 변환(ML Kit, 한국어) → 변환된 텍스트가 노트 내용이 됨 → '할 일로 전환'하면 그 <b>텍스트</b>가 오늘 화면 할 일 제목으로 넘어감. 그림 원본은 생각 노트 안에 그대로 남고, 할 일은 텍스트로만 관리(Task에 그림 필드를 두지 않음).</div>
   <div class="flow">습관·챌린지: 반복하고 싶은 습관을 등록 → 매일 '오늘 했음' 체크 → 연속일수(🔥)가 쌓이며 꾸준함을 시각적으로 확인 → 주간 목표·달력 뷰·통계로 심화 관리</div>
   <div class="flow">전체 일정 보기: 오늘 화면 헤더의 달력 버튼 → 월간 캘린더에서 날짜별 할 일 개수를 점으로 확인 → 날짜를 골라 그날 일정으로 바로 이동</div>
   <div class="flow">성장·동기부여: 완료한 할 일·습관 체크·아침 세션이 점수로 쌓임 → 통계 대시보드에서 예스코 마스코트가 알→아기→성체→다 큰→마스터로 성장 → 요약·7일 그래프·카테고리별 완료로 성취를 한눈에 확인</div>
   <div class="flow">프로젝트 관리: 오늘 화면 우측 상단 폴더 버튼 → 프로젝트를 만들고(이름·색상·기간) 할 일에 프로젝트를 연결 → 프로젝트별 진행률(속한 할 일 완료 비율)을 카드로 확인 → 타임라인(간트) 뷰에서 기간 막대·진행률·오늘 위치를 한눈에 확인(확대/축소 지원)</div>
+  <div class="flow"><b>홈 화면 위젯:</b> 안드로이드 홈 화면에 위젯을 배치하면 오늘의 핵심 할 일(중요+긴급 또는 Top3 우선) 최대 3개가 표시됨 → 할 일 추가/완료/수정/삭제 및 앱 시작 시 실시간 갱신.</div>
 </div>
 
 <div class="card">
@@ -143,23 +144,23 @@
   <table>
     <tr><th>항목</th><th>설명</th></tr>
     <tr><td>텍스트 내용(content)</td><td>키보드로 적은 글, 또는 손그림 노트의 메모/변환 텍스트. 손그림만 있고 메모가 없으면 '(손그림 노트)' 자동 라벨.</td></tr>
-    <tr><td>펜 그림(penStrokes)</td><td class="new">손그림 획 좌표 데이터를 JSON 문자열로 저장. <span class="tag new">2026-07-21 구현 · HiveField 7</span></td></tr>
+    <tr><td>펜 그림(penStrokes)</td><td>손그림 획 좌표 데이터를 JSON 문자열로 저장. <span class="tag done">HiveField 7</span></td></tr>
     <tr><td>펜 이미지 경로(penImagePath)</td><td>구버전 호환용 필드(현재 미사용, 자리 유지). <span class="tag done">HiveField 4</span></td></tr>
-    <tr><td>변환된 텍스트(convertedText)</td><td>손글씨 인식 결과 <span class="tag later">3단계 자리 마련됨 · HiveField 5</span></td></tr>
+    <tr><td>변환된 텍스트(convertedText)</td><td>손글씨 인식 결과(ML Kit). <span class="tag done">구현 완료 2026-07-23 · HiveField 5</span></td></tr>
     <tr><td>전환된 할 일 ID(convertedTaskId)</td><td>할 일로 전환 시 연결된 Task id. <span class="tag done">HiveField 6</span></td></tr>
     <tr><td>상태(status)</td><td>미분류(unclassified) / 아이디어 보관(archived) / 할 일로 전환됨(converted)</td></tr>
     <tr><td>생성 날짜(createdAt)</td><td>자동 기록</td></tr>
   </table>
   <div class="note">Note 필드 인덱스: id(0)·content(1)·status(2)·createdAt(3)·penImagePath(4)·convertedText(5)·convertedTaskId(6)·penStrokes(7). "아이디어 보관"은 별도 저장소로 옮기는 게 아니라 status를 archived로 바꿔 같은 노트 박스에 유지하고 카드 라벨만 바뀐다.</div>
 
-  <h3>펜 획 데이터 (순수 Dart 모델, Hive 아님) <span class="tag new">2026-07-21</span></h3>
+  <h3>펜 획 데이터 (순수 Dart 모델, Hive 아님) <span class="tag done">2026-07-21</span></h3>
   <table>
     <tr><th>항목</th><th>설명</th></tr>
     <tr><td>StrokePoint</td><td>한 점(x, y). lib/models/drawn_stroke.dart</td></tr>
     <tr><td>DrawnStroke</td><td>획 하나: points(점 목록) + colorValue(ARGB int) + width(굵기). toJson/fromJson 보유.</td></tr>
     <tr><td>encodeStrokes / decodeStrokes</td><td>List&lt;DrawnStroke&gt; ↔ JSON 문자열 변환 헬퍼. Note.penStrokes에 저장/복원할 때 사용.</td></tr>
   </table>
-  <p style="font-size:13.5px;color:#636e72;">Hive typeId를 새로 쓰지 않으려고 별도 모델 대신 JSON 문자열로 Note에 저장. 획 좌표 방식이라 재편집·색/굵기 유지·향후 ML Kit 손글씨 인식에 재사용 가능.</p>
+  <p style="font-size:13.5px;color:#636e72;">Hive typeId를 새로 쓰지 않으려고 별도 모델 대신 JSON 문자열로 Note에 저장. 획 좌표 방식이라 재편집·색/굵기 유지·ML Kit 손글씨 인식에 재사용(InkRecognitionService가 이 좌표를 ML Kit Ink 포맷으로 변환).</p>
 
   <h3>회고 (Reflection) <span class="tag done">typeId 3</span></h3>
   <p style="font-size:13.5px;color:#636e72;">날짜별 저녁 회고 메모. (1단계 완료)</p>
@@ -168,10 +169,11 @@
   <table>
     <tr><th>항목</th><th>설명</th></tr>
     <tr><td>고유 ID / 이름 / 이모지 / 색상값</td><td>습관 식별·표시용(기본 이모지 ⭐)</td></tr>
-    <tr><td>체크한 날짜 목록</td><td>"yyyy-MM-dd" 문자열 리스트. 연속일수·최장연속·총횟수·주간횟수 계산의 핵심</td></tr>
+    <tr><td>체크한 날짜 목록(checkedDates)</td><td>"yyyy-MM-dd" 문자열 리스트. 연속일수·최장연속·총횟수·주간횟수 계산의 핵심</td></tr>
     <tr><td>생성 날짜 / 보관 여부(isArchived)</td><td>정렬 기준 / 삭제 대신 숨김</td></tr>
     <tr><td>주간 목표(weeklyGoal)</td><td>주간 목표 횟수. null이면 미설정. <span class="tag done">HiveField 7</span></td></tr>
   </table>
+  <div class="note">CSV 내보내기(export_service.dart)는 Habit의 <code>checkedDates</code>·<code>emoji</code>를 사용(과거에 존재하지 않던 completedDates/isGood 참조 오류를 2026-07-23 수정 완료).</div>
 
   <h3>아침 세션 (MorningSession) <span class="tag done">typeId 5</span></h3>
   <table>
@@ -198,18 +200,19 @@
 <div class="card">
   <h2>5. 화면 구성 (현재까지 구현)</h2>
   <ul>
-    <li><b>오늘 화면(홈):</b> 오늘 일정을 시간순 리스트로 표시. 상단 '오늘 집중 3가지' 강조, 날짜 앞뒤 이동. 장소·카테고리 필터, 할 일에 장소 아이콘·카테고리 뱃지. 헤더 우측: <b>달력·프로젝트(폴더)·통계·검색·다크모드 버튼</b>. <span class="tag new">헤더 버튼 정렬 정리 2026-07-21(캐릭터 좌측, 원형 크기 통일)</span> 날짜 넘김 화살표는 가운데 날짜 양옆 배치.</li>
+    <li><b>오늘 화면(홈):</b> 오늘 일정을 시간순 리스트로 표시. 상단 '오늘 집중 3가지' 강조, 날짜 앞뒤 이동. 장소·카테고리 필터, 할 일에 장소 아이콘·카테고리 뱃지. 헤더 우측: <b>달력·프로젝트(폴더)·통계·검색·다크모드 버튼</b>. 날짜 넘김 화살표는 가운데 날짜 양옆 배치.</li>
     <li><b>프로젝트 목록 화면:</b> 색상 점+이름+완료/전체+진행률 바+% 카드. + 버튼으로 추가, 길게 눌러 완료/수정/삭제. 헤더 타임라인 버튼으로 간트 진입.</li>
-    <li><b>프로젝트 타임라인(간트) 화면:</b> 기간 막대·진행률·오늘 세로선·날짜 눈금. <b>확대/축소(+/− 버튼, 하루폭 8~48px)</b> 및 줌 레벨에 따른 날짜 라벨 간격 자동 조정, 막대 탭으로 기간 편집. <span class="tag new">확대/축소·라벨 자동 2026-07-21</span></li>
+    <li><b>프로젝트 타임라인(간트) 화면:</b> 기간 막대·진행률·오늘 세로선·날짜 눈금. <b>확대/축소(+/− 버튼, 하루폭 8~48px)</b> 및 줌 레벨에 따른 날짜 라벨 간격 자동 조정, 막대 탭으로 기간 편집.</li>
     <li><b>통계 대시보드 화면:</b> 성장 마스코트 카드 · 요약 4개 · 최근 7일 완료 막대 · 최근 7일 아침 집중 막대 · 이번 주 카테고리별 완료.</li>
     <li><b>아침 1시간 타이머 화면:</b> 원형 진행 링(기본 60분), 시작/일시정지/리셋, 완료 시 메모 저장, 누적·연속·히스토리.</li>
     <li><b>우선순위 매트릭스:</b> 선택 날짜 할 일을 2×2 사분면 배치(필터 함께 적용).</li>
     <li><b>습관·챌린지 / 습관 상세:</b> 카드(이모지+이름+🔥연속+오늘 체크+주간 진행률), 상세는 월간 달력 체크 뷰+통계.</li>
     <li><b>월간 캘린더 화면:</b> table_calendar 기반, 날짜별 할 일 개수 점 표시, 날짜 탭 미리보기, 해당 날짜로 이동.</li>
-    <li><b>할 일·일정 추가·편집:</b> 제목·메모·시간·날짜, 중요도·긴급도, 장소, 카테고리, 프로젝트 선택, 5W2H 접이식, 반복 설정.</li>
-    <li><b>생각 노트:</b> 빈 종이 방식. 상단 입력창 + 텍스트 추가 버튼 + <b>손그림 노트 진입 버튼(연필 아이콘)</b>. 카드에 손그림이 있으면 <b>미리보기(bounding box 자동 축소·중앙정렬) + "탭하여 수정"</b> 표시. 카드 액션: 할 일로 전환 / 아이디어 보관 / 삭제. <span class="tag new">손그림 2026-07-21</span></li>
-    <li><b>손그림 노트 화면(PenNoteScreen):</b> 상단 선택 메모 입력 + 전체화면 펜 캔버스. 신규 작성/기존 편집(note 전달 시 기존 획·텍스트 복원) 모두 지원. 저장 시 신규는 addNote, 편집은 updateNotePen 호출. <span class="tag new">2026-07-21</span></li>
-    <li><b>펜 캔버스 위젯(PenCanvas):</b> 색상 팔레트(검·빨·파·초·주)·굵기 슬라이더(1~12)·지우개·되돌리기·전체지우기. 부모가 준 높이를 Expanded로 채움. 획이 바뀔 때 onChanged로 전달, initialStrokes로 이어 그리기. StrokePreviewPainter로 읽기전용 미리보기 제공. <span class="tag new">2026-07-21</span></li>
+    <li><b>할 일·일정 추가·편집:</b> 제목·메모·시간·날짜, 중요도·긴급도, 장소, 카테고리, 프로젝트 선택, 5W2H 접이식, 반복 설정. <b>음성 입력(마이크 버튼, speech_to_text)</b>으로 제목 받아쓰기 지원.</li>
+    <li><b>생각 노트:</b> 빈 종이 방식. 상단 입력창 + 텍스트 추가 버튼 + <b>손그림 노트 진입 버튼(연필 아이콘)</b>. 카드에 손그림이 있으면 <b>미리보기(bounding box 자동 축소·중앙정렬) + "탭하여 수정"</b> 표시. 카드 액션: 할 일로 전환 / 아이디어 보관 / 삭제.</li>
+    <li><b>손그림 노트 화면(PenNoteScreen):</b> 상단 선택 메모 입력 + 전체화면 펜 캔버스 + <b>"텍스트로 변환" 버튼(ML Kit)</b>. 신규 작성/기존 편집(note 전달 시 기존 획·텍스트 복원) 모두 지원. 저장 시 신규는 addNote, 편집은 updateNotePen 호출.</li>
+    <li><b>펜 캔버스 위젯(PenCanvas):</b> 색상 팔레트(검·빨·파·초·주)·굵기 슬라이더(1~12)·지우개·되돌리기·전체지우기. 부모가 준 높이를 Expanded로 채움. 획이 바뀔 때 onChanged로 전달, initialStrokes로 이어 그리기. StrokePreviewPainter로 읽기전용 미리보기 제공.</li>
+    <li><b>홈 화면 위젯(네이티브):</b> HomeScreenWidgetProvider(Kotlin) + widget_layout.xml + widget_info.xml. Dart WidgetService가 오늘의 핵심 할 일 3개를 'widget_task_list' 키로 전달·갱신.</li>
     <li><b>저녁 회고 / 검색 / 다크모드:</b> 기존대로.</li>
   </ul>
   <div class="note">하단 탭(6개): 오늘 → 아침 → 매트릭스 → 🔥습관 → 생각노트 → 회고. 통계·프로젝트는 오늘 화면 헤더 버튼, 간트는 프로젝트 화면 헤더 버튼으로 진입.</div>
@@ -219,25 +222,24 @@
   <h2>6. 단계별 로드맵</h2>
   <div class="stage s1"><b>1단계 (완료)</b>할 일·일정 관리 · 우선순위 매트릭스 · 오늘의 3가지 · 생각 노트(키보드) · 저녁 회고 · 미완료 이월 · 검색 · 다크모드 · 장소 구분 · 5W2H · 습관 추적 · 로컬 저장.</div>
   <div class="stage s2"><b>2단계 (거의 완료)</b>
-    <div style="margin-top:6px;"><b style="display:inline;">✅ 완료:</b> 아침 타이머 · 습관 통계·달력 뷰 · 습관 주간 목표 · 월간 캘린더 · 반복 태스크 · 통계 대시보드 · 성장 마스코트(예스코 5단계) · 카테고리 태그 · 프로젝트 관리(모델·목록·편집 연결) · 간트 뷰.</div>
-    <div style="margin-top:6px;"><b style="display:inline;">✅ 완료(2026-07-21):</b> 간트 뷰 확대/축소(+/− 버튼·라벨 간격 자동) · 헤더 버튼 정렬 정리 · 오늘 화면 날짜 화살표 배치.</div>
-    <div style="margin-top:6px;"><b style="display:inline;">⏳ 남음:</b> 엑셀·PDF 내보내기(보류) · 성장 시스템 심화(알 랜덤 부화·축하 연출) · 간트 추가 고도화(줌 단위 전환 등) · 자연어 날짜 입력 파서(규칙 기반, 선택).</div>
+    <div style="margin-top:6px;"><b style="display:inline;">✅ 완료:</b> 아침 타이머 · 습관 통계·달력 뷰 · 습관 주간 목표 · 월간 캘린더 · 반복 태스크 · 통계 대시보드 · 성장 마스코트(예스코 5단계) · 카테고리 태그 · 프로젝트 관리(모델·목록·편집 연결) · 간트 뷰 · 간트 확대/축소 · 헤더 버튼 정렬.</div>
+    <div style="margin-top:6px;"><b style="display:inline;">⏳ 남음:</b> 엑셀·PDF 내보내기(CSV는 export_service 구현됨) · 성장 시스템 심화(알 랜덤 부화·축하 연출) · 간트 추가 고도화(줌 단위 전환 등) · 자연어 날짜 입력 파서(규칙 기반, 선택).</div>
   </div>
-  <div class="stage s3"><b>3단계 (진행 중 — 펜 우선)</b>
+  <div class="stage s3"><b>3단계 (핵심 완료 — 펜/알림/위젯)</b>
     <div style="margin-top:6px;"><b style="display:inline;">✅ 완료(2026-07-21):</b> 펜 캔버스(그림 저장 — 획 좌표 JSON) · 손그림 노트 작성/편집 · 카드 미리보기(자동 축소)·재편집 · Note.penStrokes 필드·note.g.dart 재생성.</div>
-    <div style="margin-top:6px;"><b style="display:inline;">⏳ 다음(바로 착수):</b> <b>펜 손글씨 → 텍스트 변환(ML Kit Digital Ink, 한국어)</b>. 손그림 노트 화면에 "텍스트로 변환" 버튼 → 변환 결과를 Note.convertedText/content에 저장 → '할 일로 전환' 시 <b>변환된 텍스트</b>가 Task 제목으로 넘어감. (그림은 Task에 넣지 않음)</div>
-    <div style="margin-top:6px;"><b style="display:inline;">이후:</b> 알림(아침 일정·마감·습관 리마인더) · 마인드맵. ※ ML Kit·알림은 네이티브 설정(모델 다운로드·권한·minSdk)이 필요 → 계정/설정 결정이 얽히므로 주의.</div>
+    <div style="margin-top:6px;"><b style="display:inline;">✅ 완료(2026-07-23):</b> <b>펜 손글씨 → 텍스트 변환(ML Kit Digital Ink, 한국어)</b> — InkRecognitionService가 획 좌표를 ML Kit Ink 포맷으로 변환, 손그림 노트 화면 "텍스트로 변환" 버튼, 변환 결과를 Note.convertedText/content에 저장(태블릿 실기기 동작 확인). · <b>알림</b>(flutter_local_notifications·timezone, 아침/마감/습관 리마인더, core library desugaring 적용). · <b>홈 화면 위젯</b>(오늘의 핵심 할 일 3개 표시, 추가/완료/수정/삭제·앱 시작 시 실시간 갱신). · <b>음성 입력</b>(speech_to_text, 마이크 권한). · 미완료 이월 로직(initializeAndCarryOverTasks) 정리.</div>
+    <div style="margin-top:6px;"><b style="display:inline;">⏳ 이후:</b> 마인드맵 · 성장 연출(confetti/lottie 활용) · ML Kit 인식 정확도 튜닝. ※ ML Kit·알림·위젯은 네이티브 설정(모델 다운로드·권한·빌드 설정)이 얽히므로 아래 7번 설계 원칙의 빌드 주의사항 참고.</div>
   </div>
-  <div class="stage s4"><b>최종 (코드 바깥이 얽힘 — 분리 필수)</b>로그인·클라우드 동기화 · 팀 공유·관리자 대시보드 · 나를 닮은 캐리커처 개인화.</div>
+  <div class="stage s4"><b>최종 (코드 바깥이 얽힘 — 분리 필수)</b>로그인·클라우드 동기화 · 팀 공유·관리자 대시보드 · 나를 닮은 캐리커처 개인화 · 플레이스토어 정식 배포(16KB 정렬·서명·개인정보 처리방침 등).</div>
 </div>
 
 <div class="card">
   <h2>7. 확정된 설계 원칙</h2>
   <ul>
     <li>MVP는 "작동하는 가장 작은 완성품". 다만 <b>난이도가 비슷한 기능은 함께 만든다.</b></li>
-    <li><b>코드 바깥이 얽히는 기능(알림·펜 변환·로그인·클라우드)은 분리</b>해 뒤 단계로. 계정·설정·결정이 필요하기 때문.</li>
+    <li><b>코드 바깥이 얽히는 기능(로그인·클라우드)은 분리</b>해 뒤 단계로. 계정·설정·결정이 필요하기 때문. (알림·펜 변환·위젯은 3단계에서 완료)</li>
     <li>생각 노트는 유도 질문 없이 <b>빈 종이 방식.</b></li>
-    <li><b>손그림 노트 → 할 일 전환은 그림이 아니라 "변환된 텍스트"로 넘긴다(확정).</b> Task에는 그림 필드를 두지 않는다. 텍스트 변환(ML Kit)이 붙기 전까지는 손그림 노트의 '할 일 전환'을 임시로 막거나 "텍스트 변환 후 전환" 안내로 처리.</li>
+    <li><b>손그림 노트 → 할 일 전환은 그림이 아니라 "변환된 텍스트"로 넘긴다(확정).</b> Task에는 그림 필드를 두지 않는다. ML Kit 텍스트 변환이 구현되어 손글씨 노트를 변환 후 전환하는 흐름이 완성됨.</li>
     <li>펜 그림은 <b>획 좌표(JSON)로 저장</b>해 재편집·색/굵기 유지·손글씨 인식 재사용을 가능하게 한다. Note.penStrokes(HiveField 7)에 문자열로 보관.</li>
     <li><b>PenCanvas는 부모가 준 높이를 Expanded로 채운다</b>(height에 double.infinity를 넘기지 말 것 — 레이아웃/히트테스트 오류 원인). 미리보기는 StrokePreviewPainter가 bounding box로 자동 축소·중앙정렬.</li>
     <li>화면은 폰과 태블릿 모두 반응형으로 설계.</li>
@@ -246,8 +248,13 @@
     <li><b>typeId는 겹치지 않게.</b> 현재: Task0/Note1/NoteStatus2/Reflection3/Habit4/MorningSession5/Project6. <b>다음은 7부터.</b> 필드만 추가면 HiveField 번호만 늘리고 typeId는 유지.</li>
     <li><b>새 typeId 추가 후</b> 기존 설치 기기는 <code>flutter clean</code> 후 재빌드하거나 앱 재설치.</li>
     <li><b>GitHub 웹에서 수정한 경우</b> 로컬 빌드 전 <code>git pull origin main</code>. 병합이 꼬이면 <code>git fetch origin</code> 후 <code>git reset --hard origin/main</code>(로컬 변경분 사라짐 주의).</li>
-    <li><b>Color.value는 deprecated</b> → <code>.toARGB32()</code> 사용(펜 색상 저장 시 적용됨).</li>
-    <li>Gradle/AGP/Kotlin 버전 경고, "26 packages have newer versions"는 <b>빌드를 막지 않는 경고</b>이므로 당장은 무시 가능. 여유 있을 때 일괄 업그레이드 검토.</li>
+    <li><b>Color.value는 deprecated</b> → <code>.toARGB32()</code> 사용. <code>withOpacity</code>도 deprecated → <code>.withValues()</code> 권장(info 수준, 빌드는 통과).</li>
+    <li class="note" style="list-style:none; margin-left:-22px;"><b>[빌드 주의] flutter_local_notifications는 core library desugaring 필수.</b> android/app/build.gradle.kts의 compileOptions에 <code>isCoreLibraryDesugaringEnabled = true</code> 추가 + dependencies 블록에 <code>coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")</code> 추가. (2026-07-23 적용)</li>
+    <li class="note" style="list-style:none; margin-left:-22px;"><b>[빌드 주의] home_widget은 0.5.0+ 필요.</b> 0.3.1은 최신 Flutter의 ViewConfiguration 변경(No named parameter 'size')과 충돌해 웹/데스크톱/안드로이드 빌드 실패. 현재 <code>^0.6.0</code> 사용. updateWidget 호출 시 <code>androidName</code> 파라미터 함께 지정.</li>
+    <li class="note" style="list-style:none; margin-left:-22px;"><b>[빌드 주의] ML Kit 버전 고정.</b> google_mlkit_digital_ink_recognition는 <code>any</code> 대신 <code>^0.13.0</code>으로 고정(MissingPluginException 방지). 첫 사용 시 한국어 모델을 인터넷에서 다운로드.</li>
+    <li class="note" style="list-style:none; margin-left:-22px;"><b>[빌드 주의] 16KB ELF 정렬 경고.</b> 최신 안드로이드에서 ML Kit·Flutter 등 서드파티 .so가 16KB 페이지 정렬을 안 따른다는 호환성 경고가 뜰 수 있음. 개발/테스트 단계에서는 계속 진행으로 무시 가능. 플레이스토어 정식 배포 시 각 플러그인 최신 버전·NDK 업데이트로 대응.</li>
+    <li>Windows에서 플러그인 빌드 시 <b>개발자 모드(Developer Mode) 활성화 필요</b>(symlink 지원). 없으면 <code>flutter pub get</code>에서 symlink 경고와 exit code 1.</li>
+    <li>Gradle/AGP/Kotlin 버전 경고, "packages have newer versions"는 <b>빌드를 막지 않는 경고</b>이므로 당장은 무시 가능. 여유 있을 때 일괄 업그레이드 검토.</li>
     <li><b>git 사용자 정보:</b> <code>git config --global user.name "lemon6243"</code> / <code>git config --global user.email "93980574+lemon6243@users.noreply.github.com"</code>.</li>
     <li><b>시간 측정은 시작 시각을 저장</b>해 <code>DateTime.now()</code>와의 차이로 계산(Timer.periodic은 UI 갱신용만).</li>
     <li><b>에셋은 assets/ 아래</b>(예: assets/growth/)에 두고 pubspec.yaml에 등록. 설계 문서는 <code>docs/</code>(빌드 미포함).</li>
@@ -259,16 +266,25 @@
   <table>
     <tr><th>경로</th><th>역할</th></tr>
     <tr><td>lib/models/task.dart</td><td>Task 모델(typeId 0, 20필드)</td></tr>
-    <tr><td>lib/models/note.dart</td><td>Note 모델(typeId 1) + NoteStatus(2). penStrokes(HiveField 7) 포함</td></tr>
+    <tr><td>lib/models/note.dart</td><td>Note 모델(typeId 1) + NoteStatus(2). penStrokes(HiveField 7)·convertedText(5) 포함</td></tr>
+    <tr><td>lib/models/habit.dart</td><td>Habit 모델(typeId 4). checkedDates·emoji·weeklyGoal</td></tr>
     <tr><td>lib/models/project.dart</td><td>Project 모델(typeId 6)</td></tr>
     <tr><td>lib/models/drawn_stroke.dart</td><td>StrokePoint/DrawnStroke + encodeStrokes/decodeStrokes(순수 Dart)</td></tr>
-    <tr><td>lib/services/app_state.dart</td><td>AppState(Provider). 할일·노트·프로젝트 CRUD, addNote/updateNotePen/convertNoteToTask 등</td></tr>
+    <tr><td>lib/services/app_state.dart</td><td>AppState(Provider). 할일·노트·프로젝트 CRUD, addNote/updateNotePen/convertNoteToTask, 위젯 갱신·미완료 이월(initializeAndCarryOverTasks)</td></tr>
     <tr><td>lib/services/storage_service.dart</td><td>Hive 접근 일원화(saveNote 등)</td></tr>
+    <tr><td>lib/services/notification_service.dart</td><td>flutter_local_notifications·timezone 알림 예약/취소</td></tr>
+    <tr><td>lib/services/widget_service.dart</td><td>홈 위젯에 오늘의 핵심 할 일 3개 전달('widget_task_list')·updateWidget</td></tr>
+    <tr><td>lib/services/ink_recognition_service.dart</td><td>DrawnStroke → ML Kit Ink 변환, 한국어 손글씨 인식</td></tr>
+    <tr><td>lib/services/export_service.dart</td><td>CSV 내보내기(share_plus). Habit은 checkedDates·emoji 사용</td></tr>
     <tr><td>lib/widgets/pen_canvas.dart</td><td>PenCanvas 위젯 + _CanvasPainter + StrokePreviewPainter</td></tr>
-    <tr><td>lib/screens/pen_note_screen.dart</td><td>손그림 노트 작성/편집 화면(note 전달 시 편집)</td></tr>
+    <tr><td>lib/screens/pen_note_screen.dart</td><td>손그림 노트 작성/편집 화면(텍스트 변환 버튼 포함)</td></tr>
     <tr><td>lib/screens/notes_screen.dart</td><td>생각 노트 목록(카드 미리보기·탭 편집·액션)</td></tr>
+    <tr><td>lib/screens/task_edit_screen.dart</td><td>할 일 추가/편집(음성 입력 포함)</td></tr>
     <tr><td>lib/screens/project_timeline_screen.dart</td><td>간트 뷰(확대/축소)</td></tr>
-    <tr><td>lib/screens/main_navigation.dart / today_screen.dart</td><td>하단 탭·헤더 버튼 / 오늘 화면</td></tr>
+    <tr><td>lib/screens/main_navigation.dart</td><td>하단 탭·헤더 버튼. 시작 시 미완료 이월 스낵바</td></tr>
+    <tr><td>android/app/build.gradle.kts</td><td>desugaring·compileOptions·dependencies</td></tr>
+    <tr><td>android/.../HomeScreenWidgetProvider.kt</td><td>홈 위젯 네이티브 provider(widget_task_list 읽어 표시)</td></tr>
+    <tr><td>android/app/src/main/res/(xml/widget_info.xml, layout/widget_layout.xml)</td><td>위젯 메타·레이아웃</td></tr>
     <tr><td>docs/design.html</td><td>이 설계도(빌드 미포함)</td></tr>
   </table>
 </div>
@@ -276,12 +292,12 @@
 <div class="card">
   <h2>💡 향후 검토 아이디어 창고</h2>
   <ul>
-    <li><b>펜 손글씨→텍스트 변환(다음 착수):</b> ML Kit Digital Ink(한국어). 변환 텍스트 → 할 일 전환 흐름 완성. 네이티브 설정 필요.</li>
-    <li><b>성장 시스템 심화:</b> 알 랜덤 부화(마스코트 이미지 추가), 부화·레벨업 축하 연출, 동물 선택 UI 재활성화.</li>
+    <li><b>성장 시스템 심화:</b> 알 랜덤 부화(마스코트 이미지 추가), 부화·레벨업 축하 연출(confetti/lottie), 동물 선택 UI 재활성화.</li>
     <li><b>프로젝트 관리 심화:</b> 프로젝트 상세(속한 할 일 목록·추가), 간트 줌 단위 전환(일·주·월), 프로젝트별 통계.</li>
     <li><b>자연어 날짜 입력:</b> 규칙 기반 파서('내일','오후 3시' 등 → 날짜·시간·제목 추출). Chrono/Parsedatetime은 Dart 미지원이라 직접 구현. lib/services/natural_date_parser.dart 예정.</li>
-    <li><b>파일 내보내기(보류):</b> CSV(share_plus) 우선 검토 후 엑셀/PDF. 회사 보고용.</li>
-    <li><b>알림 · 마인드맵 · 팀 공유:</b> 3~최종 단계.</li>
+    <li><b>파일 내보내기:</b> CSV 구현됨(share_plus). 엑셀/PDF는 추후. 회사 보고용.</li>
+    <li><b>마인드맵 · 팀 공유:</b> 3~최종 단계.</li>
+    <li><b>플레이스토어 배포 준비:</b> 16KB 정렬 대응, 릴리즈 서명 키, 앱 아이콘·스플래시, 개인정보 처리방침.</li>
   </ul>
 </div>
 
@@ -291,11 +307,13 @@
 
 작업 방식: 나는 프로그래밍을 잘 몰라서, 너가 "어느 파일의 어디에 무엇을 붙여넣어라"를 구체적으로 알려주면 내가 GitHub 웹에서 수정·커밋할게. 커밋하면 "커밋했어"라고 말할 테니, 너는 최신 커밋 SHA를 조회한 뒤 그 SHA로 파일을 읽어 검증해줘(캐시된 옛 버전을 보지 않도록).
 
-현재까지: 1단계 전부 + 2단계 거의 완료(아침 타이머·습관 통계/달력·캘린더·반복·통계 대시보드·성장 마스코트·카테고리·프로젝트/간트+확대축소) + 3단계 펜 캔버스·손그림 노트(획 좌표 JSON 저장, 미리보기 축소, 재편집)까지 완료. Hive typeId: Task0/Note1/NoteStatus2/Reflection3/Habit4/MorningSession5/Project6(다음 7부터). Note.penStrokes=HiveField7. 데이터 접근은 StorageService·app_state로 일원화.
+현재까지: 1단계 전부 + 2단계 거의 완료(아침 타이머·습관 통계/달력·캘린더·반복·통계 대시보드·성장 마스코트·카테고리·프로젝트/간트+확대축소) + 3단계 핵심 완료(펜 캔버스·손그림 노트, 펜 손글씨→텍스트 변환(ML Kit 한국어), 알림, 홈 위젯, 음성 입력)까지 완료. 태블릿(SM X400) 실기기에서 텍스트 변환·홈 위젯 동작 확인함. Hive typeId: Task0/Note1/NoteStatus2/Reflection3/Habit4/MorningSession5/Project6(다음 7부터). Note.penStrokes=HiveField7, convertedText=HiveField5. 데이터 접근은 StorageService·app_state로 일원화.
 
-확정 설계: 손그림 노트는 (3단계) 손글씨→텍스트 변환 후, '할 일로 전환' 시 변환된 텍스트를 Task 제목으로 넘긴다. Task에는 그림 필드를 두지 않는다.
+빌드 주의: flutter_local_notifications는 desugaring 필수(build.gradle.kts에 isCoreLibraryDesugaringEnabled=true + desugar_jdk_libs 2.1.4). home_widget은 ^0.6.0(0.3.1은 ViewConfiguration 'size' 오류). ML Kit는 ^0.13.0 고정. 최신 안드로이드 16KB 정렬 경고는 개발 중 무시 가능.
 
-다음에 할 일: 펜 손글씨→텍스트 변환(ML Kit Digital Ink, 한국어)부터. (또는 여기에 원하는 작업을 적기)</div>
+확정 설계: 손그림 노트는 손글씨→텍스트 변환 후, '할 일로 전환' 시 변환된 텍스트를 Task 제목으로 넘긴다. Task에는 그림 필드를 두지 않는다.
+
+다음에 할 일: (여기에 원하는 작업을 적기 — 예: 성장 연출, 프로젝트 상세, 자연어 날짜 입력, 플레이스토어 배포 준비 등)</div>
 </div>
 
 </body>
