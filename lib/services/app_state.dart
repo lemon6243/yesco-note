@@ -338,7 +338,9 @@ class AppState extends ChangeNotifier {
 
   // ---------------- Note(생각 노트) 관련 ----------------
 
-  List<Note> get allNotes => storage.getAllNotes();
+  List<Note> get allNotes =>
+    storage.getAllNotes().where((n) => !n.isMeeting).toList();
+
 
   // 노트 추가. 텍스트만, 그림만, 또는 둘 다 저장 가능.
   // penStrokesJson은 drawn_stroke.dart의 encodeStrokes() 결과(JSON 문자열).
