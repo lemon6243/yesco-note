@@ -15,6 +15,7 @@ import '../models/drawn_stroke.dart';
 import '../theme/app_theme.dart';
 import '../widgets/pen_canvas.dart';
 import 'pen_note_screen.dart';
+import 'meeting_note_screen.dart';   // 추가
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -38,7 +39,20 @@ class _NotesScreenState extends State<NotesScreen> {
     final notes = appState.allNotes;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('생각 노트')),
+      appBar: AppBar(
+        title: const Text('생각 노트'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.event_note),
+            tooltip: '회의록 목록',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MeetingListScreen()),
+            ),
+          ),
+        ],
+      ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -76,6 +90,17 @@ class _NotesScreenState extends State<NotesScreen> {
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const PenNoteScreen()),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // 회의록 작성 진입 버튼
+                  IconButton.filledTonal(
+                    icon: const Icon(Icons.mic_none_rounded),
+                    tooltip: '회의록 작성',
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const MeetingNoteScreen()),
                     ),
                   ),
                 ],
