@@ -397,6 +397,49 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ---------------- 회의록 관련 ----------------
+
+  // 회의록만 골라서 반환 (회의 날짜 최신순 정렬)
+  List<Note> get allNotes =>
+      storage.getAllNotes().where((n) => !n.isMeeting).toList();
+
+    list.sort((a, b) {
+      final ad = a.meetingDate ?? a.createdAt;
+      final bd = b.meetingDate ?? b.createdAt;
+      return bd.compareTo(ad); // 최신 회의가 위로
+    });
+    return list;
+  }
+
+  // 새 회의록 추가
+  Future<void> addMeeting({
+    required String content,
+    required DateTime meetingDate,
+  }) async {
+    final note = Note(
+      id: _uuid.v4(),
+      content: content,
+      createdAt: DateTime.now(),
+      isMeeting: true,
+      meetingDate: meetingDate,
+    );
+    await storage.saveNote(note);
+    notifyListeners();
+  }
+
+  // 기존 회의록 수정 (내용 + 회의 날짜)
+  Future<void> updateMeeting(
+    Note note, {
+    required String content,
+    required DateTime meetingDate,
+  }) async {
+    note.content = content;
+    note.meetingDate = meetingDate;
+    await storage.saveNote(note);
+    notifyListeners();
+  }
+
+
   // ---------------- Reflection(저녁 회고) 관련 ----------------
 
   Reflection? reflectionFor(DateTime date) => storage.getReflectionByDate(date);
