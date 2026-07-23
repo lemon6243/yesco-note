@@ -266,32 +266,27 @@ class AppState extends ChangeNotifier {
   List<Task> get top3Tasks =>
       tasksForSelectedDate.where((t) => t.isTop3).toList();
 
-  // [수정된 부분] Task 추가 시 알림 예약
   Future<void> addTask(Task task) async {
-    await storage.saveTask(task);
-    // 새로 추가된 할 일에 시간이 설정되어 있다면 알림 예약
-    await NotificationService().scheduleTaskNotification(task);
-    // [추가된 부분] 할 일이 추가되면 위젯 데이터도 갱신
-    WidgetService.sendTasksToWidget(storage.getAllTasks());
-    notifyListeners();
-  }
+  await storage.saveTask(task);
+  notifyListeners(); // ① 저장하자마자 먼저 화면을 갱신 (즉시 반영)
 
-  // Task 수정 시 알림 재설정(취소 후 재예약)
+  // ② 무거운 작업은 화면을 막지 않도록 뒤에서 처리 (await로 기다리지 않음)
+  NotificationService().scheduleTaskNotification(task);
+  WidgetService.sendTasksToWidget(storage.getAllTasks());
+}
+
+
   Future<void> updateTask(Task task) async {
-    await storage.saveTask(task);
-  
-    // 기존 예약된 알림을 일단 취소
-    await NotificationService().cancelTaskNotification(task.id);
-  
-    // 미완료 상태이고 시간이 있다면 다시 예약
-    if (!task.isDone && task.startTime != null) {
-      await NotificationService().scheduleTaskNotification(task);
-    }
-  
-    // 위젯 갱신과 화면 갱신은 if 밖에서 항상 실행
-    WidgetService.sendTasksToWidget(storage.getAllTasks());
-    notifyListeners();
+  await storage.saveTask(task);
+  notifyListeners(); // 먼저 화면 갱신
+
+  NotificationService().cancelTaskNotification(task.id);
+  if (!task.isDone && task.startTime != null) {
+    NotificationService().scheduleTaskNotification(task);
   }
+  WidgetService.sendTasksToWidget(storage.getAllTasks());
+ }
+
 
 
   // [수정된 부분] Task 삭제 시 알림 취소
